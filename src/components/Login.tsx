@@ -20,7 +20,7 @@ const Login = () => {
       setIsLoading(false);
       console.log("Login attempted with:", { email, password });
       // Simulate successful login - redirect to home
-      window.location.href = "/home";
+      window.location.href = "/events";
     }, 2000);
   };
 
