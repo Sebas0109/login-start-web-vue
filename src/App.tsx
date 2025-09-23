@@ -27,6 +27,7 @@ const App = () => (
             <Route path="/home" element={<Navigate to="/events" replace />} />
             <Route path="/events" element={<Events />} />
             <Route path="/events/:id" element={<EventDetail />} />
+            <Route path="/events/:id/edit" element={<div>Edit Event Page - Coming Soon</div>} />
             <Route path="/catalogs" element={<Catalogs />} />
             <Route path="/users" element={<Users />} />
             <Route path="/calendar" element={<Calendar />} />

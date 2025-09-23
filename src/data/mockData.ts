@@ -27,11 +27,11 @@ export interface Addon {
   image?: string;
 }
 
-// Generate mock events
+// Generate mock events with current dates for better calendar visibility
 export const mockEvents: Event[] = [
   {
     id: uuidv4(),
-    date: '2024-01-15',
+    date: '2025-09-15',
     name: 'Sarah\'s Birthday Celebration',
     ownerEmails: ['sarah.jones@email.com'],
     package: 'premium',
@@ -40,7 +40,7 @@ export const mockEvents: Event[] = [
   },
   {
     id: uuidv4(),
-    date: '2024-01-20',
+    date: '2025-09-20',
     name: 'Corporate Annual Gala',
     ownerEmails: ['events@company.com', 'hr@company.com'],
     package: 'premium',
@@ -49,7 +49,7 @@ export const mockEvents: Event[] = [
   },
   {
     id: uuidv4(),
-    date: '2024-01-25',
+    date: '2025-09-25',
     name: 'Wedding Reception - Miller & Johnson',
     ownerEmails: ['emily.miller@email.com', 'james.johnson@email.com'],
     package: 'classic',
@@ -58,7 +58,7 @@ export const mockEvents: Event[] = [
   },
   {
     id: uuidv4(),
-    date: '2024-02-01',
+    date: '2025-09-28',
     name: 'Graduation Party',
     ownerEmails: ['mom.rodriguez@email.com'],
     package: 'silver',
@@ -67,7 +67,7 @@ export const mockEvents: Event[] = [
   },
   {
     id: uuidv4(),
-    date: '2024-02-05',
+    date: '2025-10-01',
     name: 'Baby Shower for Lisa',
     ownerEmails: ['lisa.williams@email.com', 'mom.williams@email.com'],
     package: 'classic',
@@ -76,7 +76,7 @@ export const mockEvents: Event[] = [
   },
   {
     id: uuidv4(),
-    date: '2024-02-10',
+    date: '2025-10-05',
     name: 'Anniversary Dinner - 25 Years',
     ownerEmails: ['robert.davis@email.com'],
     package: 'premium',
@@ -85,8 +85,8 @@ export const mockEvents: Event[] = [
   },
   {
     id: uuidv4(),
-    date: '2024-02-14',
-    name: 'Valentine\'s Day Party',
+    date: '2025-10-10',
+    name: 'Halloween Party',
     ownerEmails: ['party.planner@events.com'],
     package: 'silver',
     eventGroup: 'holiday',
@@ -94,7 +94,7 @@ export const mockEvents: Event[] = [
   },
   {
     id: uuidv4(),
-    date: '2024-02-18',
+    date: '2025-10-15',
     name: 'Retirement Celebration',
     ownerEmails: ['susan.brown@email.com', 'office@company.com'],
     package: 'classic',
@@ -103,7 +103,7 @@ export const mockEvents: Event[] = [
   },
   {
     id: uuidv4(),
-    date: '2024-02-22',
+    date: '2025-10-18',
     name: 'Housewarming Party',
     ownerEmails: ['new.home@email.com'],
     package: 'silver',
@@ -112,7 +112,7 @@ export const mockEvents: Event[] = [
   },
   {
     id: uuidv4(),
-    date: '2024-02-28',
+    date: '2025-10-22',
     name: 'Birthday Bash - Sweet 16',
     ownerEmails: ['teen.party@email.com', 'parent@email.com'],
     package: 'premium',
@@ -121,7 +121,7 @@ export const mockEvents: Event[] = [
   },
   {
     id: uuidv4(),
-    date: '2024-03-05',
+    date: '2025-10-25',
     name: 'Spring Fundraiser Gala',
     ownerEmails: ['fundraiser@nonprofit.org'],
     package: 'premium',
@@ -130,7 +130,7 @@ export const mockEvents: Event[] = [
   },
   {
     id: uuidv4(),
-    date: '2024-03-10',
+    date: '2025-11-01',
     name: 'Book Club Anniversary',
     ownerEmails: ['bookclub@library.com'],
     package: 'classic',
@@ -139,16 +139,16 @@ export const mockEvents: Event[] = [
   },
   {
     id: uuidv4(),
-    date: '2024-03-15',
-    name: 'St. Patrick\'s Day Celebration',
+    date: '2025-11-05',
+    name: 'Conference Networking Event',
     ownerEmails: ['irish.pub@bar.com'],
     package: 'silver',
-    eventGroup: 'holiday',
+    eventGroup: 'corporate',
     ownerName: 'Patrick O\'Brien'
   },
   {
     id: uuidv4(),
-    date: '2024-03-20',
+    date: '2025-11-10',
     name: 'Team Building Retreat',
     ownerEmails: ['hr@techcompany.com', 'events@techcompany.com'],
     package: 'premium',
@@ -157,12 +157,39 @@ export const mockEvents: Event[] = [
   },
   {
     id: uuidv4(),
-    date: '2024-03-25',
-    name: 'Easter Brunch',
+    date: '2025-11-15',
+    name: 'Holiday Party',
     ownerEmails: ['family.event@email.com'],
     package: 'classic',
     eventGroup: 'holiday',
     ownerName: 'Catherine Anderson'
+  },
+  {
+    id: uuidv4(),
+    date: '2025-12-01',
+    name: 'Christmas Gala',
+    ownerEmails: ['christmas@events.com'],
+    package: 'premium',
+    eventGroup: 'holiday',
+    ownerName: 'Michael Christmas'
+  },
+  {
+    id: uuidv4(),
+    date: '2025-12-15',
+    name: 'New Year Planning Meeting',
+    ownerEmails: ['planning@company.com'],
+    package: 'silver',
+    eventGroup: 'corporate',
+    ownerName: 'Rachel Planning'
+  },
+  {
+    id: uuidv4(),
+    date: '2025-12-31',
+    name: 'New Year\'s Eve Celebration',
+    ownerEmails: ['nye@party.com'],
+    package: 'premium',
+    eventGroup: 'holiday',
+    ownerName: 'Party Master'
   }
 ];
 
