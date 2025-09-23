@@ -19,6 +19,8 @@ const Login = () => {
     setTimeout(() => {
       setIsLoading(false);
       console.log("Login attempted with:", { email, password });
+      // Simulate successful login - redirect to home
+      window.location.href = "/home";
     }, 2000);
   };
 
