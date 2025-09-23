@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addDays, startOfWeek, endOfWeek } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,14 +8,18 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useMockData } from '@/hooks/useMockData';
 import { Event } from '@/data/mockData';
+import { EventModal } from '@/components/EventModal';
 
 type CalendarView = 'today' | 'week' | 'month' | 'agenda';
 
 const Calendar = () => {
+  const { currentRole } = useOutletContext<{ currentRole: 'ADMIN' | 'CLIENT' }>();
   const navigate = useNavigate();
   const { events } = useMockData();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<CalendarView>('month');
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const getEventsForDate = (date: Date): Event[] => {
     return events.filter(event => 
@@ -23,8 +27,14 @@ const Calendar = () => {
     );
   };
 
-  const handleEventClick = (eventId: string) => {
-    navigate(`/events/${eventId}`);
+  const handleEventClick = (event: Event) => {
+    setSelectedEvent(event);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedEvent(null);
+    setIsModalOpen(false);
   };
 
   const navigateDate = (direction: 'prev' | 'next') => {
@@ -71,7 +81,7 @@ const Calendar = () => {
               <Card
                 key={event.id}
                 className="cursor-pointer hover:bg-accent/30 transition-smooth bg-gradient-card backdrop-blur-lg border-border/30"
-                onClick={() => handleEventClick(event.id)}
+                onClick={() => handleEventClick(event)}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
@@ -127,7 +137,7 @@ const Calendar = () => {
                         key={event.id}
                         variant="secondary"
                         className="block text-xs cursor-pointer hover:bg-accent/50 transition-smooth truncate"
-                        onClick={() => handleEventClick(event.id)}
+                        onClick={() => handleEventClick(event)}
                       >
                         {event.name}
                       </Badge>
@@ -193,7 +203,7 @@ const Calendar = () => {
                         key={event.id}
                         variant="secondary"
                         className="block text-xs cursor-pointer hover:bg-accent/50 transition-smooth truncate"
-                        onClick={() => handleEventClick(event.id)}
+                        onClick={() => handleEventClick(event)}
                       >
                         {event.name}
                       </Badge>
@@ -226,7 +236,7 @@ const Calendar = () => {
             <Card
               key={event.id}
               className="cursor-pointer hover:bg-accent/30 transition-smooth bg-gradient-card backdrop-blur-lg border-border/30"
-              onClick={() => handleEventClick(event.id)}
+              onClick={() => handleEventClick(event)}
             >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
@@ -287,6 +297,12 @@ const Calendar = () => {
             </Tabs>
           </CardContent>
         </Card>
+        
+        <EventModal
+          event={selectedEvent}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
       </div>
     </div>
   );
