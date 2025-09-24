@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Home from "./pages/Home";
 import Events from "./pages/Events";
 import EventDetail from "./pages/EventDetail";
+import EventEdit from "./pages/EventEdit";
 import Catalogs from "./pages/Catalogs";
 import Users from "./pages/Users";
 import Calendar from "./pages/Calendar";
@@ -27,7 +28,7 @@ const App = () => (
             <Route path="/home" element={<Navigate to="/events" replace />} />
             <Route path="/events" element={<Events />} />
             <Route path="/events/:id" element={<EventDetail />} />
-            <Route path="/events/:id/edit" element={<div>Edit Event Page - Coming Soon</div>} />
+            <Route path="/events/:id/edit" element={<EventEdit />} />
             <Route path="/catalogs" element={<Catalogs />} />
             <Route path="/users" element={<Users />} />
             <Route path="/calendar" element={<Calendar />} />

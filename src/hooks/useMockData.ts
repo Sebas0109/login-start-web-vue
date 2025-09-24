@@ -4,10 +4,12 @@ import {
   mockEventGroups, 
   mockGuestTypes, 
   mockAddons,
+  mockUsers,
   Event,
   EventGroup,
   GuestType,
-  Addon
+  Addon,
+  User
 } from '@/data/mockData';
 
 export const useMockData = () => {
@@ -15,6 +17,7 @@ export const useMockData = () => {
   const [eventGroups, setEventGroups] = useState<EventGroup[]>(mockEventGroups);
   const [guestTypes, setGuestTypes] = useState<GuestType[]>(mockGuestTypes);
   const [addons, setAddons] = useState<Addon[]>(mockAddons);
+  const [users, setUsers] = useState<User[]>(mockUsers);
 
   const updateEvent = (id: string, updatedEvent: Partial<Event>) => {
     setEvents(prev => prev.map(event => 
@@ -61,6 +64,7 @@ export const useMockData = () => {
     eventGroups,
     guestTypes,
     addons,
+    users,
     updateEvent,
     deleteEvent,
     updateEventGroup,
