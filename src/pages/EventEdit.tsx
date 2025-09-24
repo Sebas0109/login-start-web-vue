@@ -368,6 +368,27 @@ const EventEdit = () => {
             </Select>
           </div>
 
+          {/* Owner */}
+          <div className="space-y-2">
+            <Label>Owner *</Label>
+            <Select 
+              value={formData.ownerUserId} 
+              onValueChange={handleOwnerChange}
+            >
+              <SelectTrigger className={errors.ownerUserId ? 'border-destructive' : ''}>
+                <SelectValue placeholder="Select owner" />
+              </SelectTrigger>
+              <SelectContent>
+                {users.map((user) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    {user.name} - {user.email}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.ownerUserId && <p className="text-sm text-destructive">{errors.ownerUserId}</p>}
+          </div>
+
           {/* Addons */}
           <div className="space-y-2">
             <Label>Addons</Label>
@@ -412,27 +433,6 @@ const EventEdit = () => {
                 })}
               </div>
             )}
-          </div>
-
-          {/* Owner */}
-          <div className="space-y-2">
-            <Label>Owner *</Label>
-            <Select 
-              value={formData.ownerUserId} 
-              onValueChange={handleOwnerChange}
-            >
-              <SelectTrigger className={errors.ownerUserId ? 'border-destructive' : ''}>
-                <SelectValue placeholder="Select owner" />
-              </SelectTrigger>
-              <SelectContent>
-                {users.map((user) => (
-                  <SelectItem key={user.id} value={user.id}>
-                    {user.name} - {user.email}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.ownerUserId && <p className="text-sm text-destructive">{errors.ownerUserId}</p>}
           </div>
 
           {/* Actions */}
