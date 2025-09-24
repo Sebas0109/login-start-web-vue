@@ -19,7 +19,13 @@ export interface Event {
 export interface User {
   id: string;
   name: string;
+  paternalSurname: string;
+  maternalSurname: string;
   email: string;
+  profile: 'CLIENT' | 'ADMIN';
+  phoneNumber: string;
+  stateCode: string;
+  password?: string;
 }
 
 export interface EventGroup {
@@ -387,13 +393,104 @@ export const mockAddons: Addon[] = [
   }
 ];
 
+export const mockStateCodes = [
+  { id: "55", name: "55 - Mexico City" },
+  { id: "33", name: "33 - Guadalajara" },
+  { id: "81", name: "81 - Monterrey" },
+  { id: "444", name: "444 - San Luis Potosí" },
+  { id: "477", name: "477 - León" },
+  { id: "222", name: "222 - Puebla" },
+  { id: "998", name: "998 - Cancún" },
+  { id: "664", name: "664 - Tijuana" },
+];
+
 export const mockUsers: User[] = [
-  { id: 'user_001', name: 'Sarah Jones', email: 'sarah.jones@email.com' },
-  { id: 'user_002', name: 'Jennifer Smith', email: 'jennifer.smith@company.com' },
-  { id: 'user_003', name: 'Emily Miller', email: 'emily.miller@email.com' },
-  { id: 'user_004', name: 'Maria Rodriguez', email: 'maria.rodriguez@email.com' },
-  { id: 'user_005', name: 'Robert Davis', email: 'robert.davis@email.com' },
-  { id: 'user_006', name: 'Anna Taylor', email: 'anna.taylor@events.com' },
-  { id: 'user_007', name: 'Michael Wilson', email: 'michael.wilson@email.com' },
-  { id: 'user_008', name: 'Patricia Garcia', email: 'patricia.garcia@email.com' }
+  { 
+    id: "user_001", 
+    name: "Juan Carlos", 
+    paternalSurname: "García", 
+    maternalSurname: "López", 
+    email: "juan.garcia@example.com", 
+    profile: "ADMIN", 
+    phoneNumber: "5551234567", 
+    stateCode: "55",
+    password: "password123"
+  },
+  { 
+    id: "user_002", 
+    name: "María Elena", 
+    paternalSurname: "Rodríguez", 
+    maternalSurname: "Martínez", 
+    email: "maria.rodriguez@example.com", 
+    profile: "CLIENT", 
+    phoneNumber: "3391234567", 
+    stateCode: "33",
+    password: "password123"
+  },
+  { 
+    id: "user_003", 
+    name: "Carlos", 
+    paternalSurname: "Hernández", 
+    maternalSurname: "Vásquez", 
+    email: "carlos.hernandez@example.com", 
+    profile: "CLIENT", 
+    phoneNumber: "8112345678", 
+    stateCode: "81",
+    password: "password123"
+  },
+  { 
+    id: "user_004", 
+    name: "Ana Sofía", 
+    paternalSurname: "Jiménez", 
+    maternalSurname: "Torres", 
+    email: "ana.jimenez@example.com", 
+    profile: "ADMIN", 
+    phoneNumber: "4441234567", 
+    stateCode: "444",
+    password: "password123"
+  },
+  { 
+    id: "user_005", 
+    name: "Roberto", 
+    paternalSurname: "Morales", 
+    maternalSurname: "Sánchez", 
+    email: "roberto.morales@example.com", 
+    profile: "CLIENT", 
+    phoneNumber: "4771234567", 
+    stateCode: "477",
+    password: "password123"
+  },
+  { 
+    id: "user_006", 
+    name: "Patricia", 
+    paternalSurname: "Cruz", 
+    maternalSurname: "Ramírez", 
+    email: "patricia.cruz@example.com", 
+    profile: "CLIENT", 
+    phoneNumber: "2221234567", 
+    stateCode: "222",
+    password: "password123"
+  },
+  { 
+    id: "user_007", 
+    name: "Fernando", 
+    paternalSurname: "Vega", 
+    maternalSurname: "Castillo", 
+    email: "fernando.vega@example.com", 
+    profile: "ADMIN", 
+    phoneNumber: "9981234567", 
+    stateCode: "998",
+    password: "password123"
+  },
+  { 
+    id: "user_008", 
+    name: "Liliana", 
+    paternalSurname: "Flores", 
+    maternalSurname: "Mendoza", 
+    email: "liliana.flores@example.com", 
+    profile: "CLIENT", 
+    phoneNumber: "6641234567", 
+    stateCode: "664",
+    password: "password123"
+  },
 ];

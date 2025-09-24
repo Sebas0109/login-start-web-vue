@@ -59,6 +59,16 @@ export const useMockData = () => {
     setAddons(prev => prev.filter(addon => addon.id !== id));
   };
 
+  const updateUser = (id: string, updatedUser: Partial<User>) => {
+    setUsers(prev => prev.map(user => 
+      user.id === id ? { ...user, ...updatedUser } : user
+    ));
+  };
+
+  const deleteUser = (id: string) => {
+    setUsers(prev => prev.filter(user => user.id !== id));
+  };
+
   return {
     events,
     eventGroups,
@@ -72,6 +82,8 @@ export const useMockData = () => {
     updateGuestType,
     deleteGuestType,
     updateAddon,
-    deleteAddon
+    deleteAddon,
+    updateUser,
+    deleteUser
   };
 };
