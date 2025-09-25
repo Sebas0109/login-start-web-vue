@@ -172,14 +172,16 @@ const Events = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-gradient-card backdrop-blur-lg border-border/50">
-              <DropdownMenuItem onClick={() => handleViewEvent(event.id)}>
-                <Eye className="mr-2 h-4 w-4" />
-                View Event
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Edit className="mr-2 h-4 w-4" />
-                Update Event
-              </DropdownMenuItem>
+               <DropdownMenuItem onClick={() => handleViewEvent(event.id)}>
+                 <Eye className="mr-2 h-4 w-4" />
+                 View Event
+               </DropdownMenuItem>
+               {currentRole === 'ADMIN' && (
+                 <DropdownMenuItem onClick={() => navigate(`/events/${event.id}/edit`)}>
+                   <Edit className="mr-2 h-4 w-4" />
+                   Update Event
+                 </DropdownMenuItem>
+               )}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
