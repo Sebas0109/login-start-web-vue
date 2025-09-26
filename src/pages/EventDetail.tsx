@@ -25,6 +25,7 @@ const EventDetail = () => {
   const [guestToDelete, setGuestToDelete] = useState<Guest | null>(null);
   const [searchValue, setSearchValue] = useState('');
   const [isAddingGuest, setIsAddingGuest] = useState(false);
+  const [modalMode, setModalMode] = useState<'edit' | 'view'>('edit');
 
   const event = events.find(e => e.id === id);
 
@@ -73,17 +74,25 @@ const EventDetail = () => {
   }, [event.guests, searchValue]);
 
   const handleViewGuest = (guestId: string) => {
-    navigate(`/events/${id}/guests/${guestId}`);
+    const guest = event.guests.find(g => g.id === guestId);
+    if (guest) {
+      setSelectedGuest(guest);
+      setModalMode('view');
+      setIsAddingGuest(false);
+      setIsGuestModalOpen(true);
+    }
   };
 
   const handleUpdateGuest = (guest: Guest) => {
     setSelectedGuest(guest);
+    setModalMode('edit');
     setIsAddingGuest(false);
     setIsGuestModalOpen(true);
   };
 
   const handleAddGuest = () => {
     setSelectedGuest(null);
+    setModalMode('edit');
     setIsAddingGuest(true);
     setIsGuestModalOpen(true);
   };
@@ -324,10 +333,12 @@ const EventDetail = () => {
             setIsGuestModalOpen(false);
             setSelectedGuest(null);
             setIsAddingGuest(false);
+            setModalMode('edit');
           }}
           guest={selectedGuest}
-          onSave={handleSaveGuest}
+          onSave={modalMode === 'view' ? undefined : handleSaveGuest}
           isAdding={isAddingGuest}
+          mode={modalMode}
         />
 
         {/* Delete Confirmation Dialog */}

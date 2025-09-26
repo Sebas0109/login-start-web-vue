@@ -6,17 +6,20 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import type { Guest } from '@/data/mockData';
 
 interface GuestModalProps {
   isOpen: boolean;
   onClose: () => void;
   guest?: Guest | null;
-  onSave: (guestData: Partial<Guest>) => void;
+  onSave?: (guestData: Partial<Guest>) => void;
   isAdding?: boolean;
+  mode?: 'edit' | 'view';
 }
 
-export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false }: GuestModalProps) => {
+export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, mode = 'edit' }: GuestModalProps) => {
+  const isViewMode = mode === 'view';
   const [formData, setFormData] = useState({
     name: '',
     paternalSurname: '',
@@ -58,6 +61,8 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false }:
   }, [guest, isOpen, isAdding]);
 
   const handleSave = () => {
+    if (isViewMode || !onSave) return;
+    
     if (!formData.name.trim() || !formData.paternalSurname.trim() || !formData.phone.trim()) {
       return;
     }
@@ -101,7 +106,9 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false }:
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>{isAdding ? 'Add Guest' : 'Update Guest'}</DialogTitle>
+          <DialogTitle>
+            {isViewMode ? 'Guest Details' : isAdding ? 'Add Guest' : 'Update Guest'}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
@@ -114,8 +121,9 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false }:
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
+                onChange={isViewMode ? undefined : (e) => setFormData({ ...formData, name: e.target.value })}
+                required={!isViewMode}
+                disabled={isViewMode}
               />
             </div>
 
@@ -126,8 +134,9 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false }:
               <Input
                 id="paternalSurname"
                 value={formData.paternalSurname}
-                onChange={(e) => setFormData({ ...formData, paternalSurname: e.target.value })}
-                required
+                onChange={isViewMode ? undefined : (e) => setFormData({ ...formData, paternalSurname: e.target.value })}
+                required={!isViewMode}
+                disabled={isViewMode}
               />
             </div>
           </div>
@@ -140,7 +149,8 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false }:
               <Input
                 id="maternalSurname"
                 value={formData.maternalSurname}
-                onChange={(e) => setFormData({ ...formData, maternalSurname: e.target.value })}
+                onChange={isViewMode ? undefined : (e) => setFormData({ ...formData, maternalSurname: e.target.value })}
+                disabled={isViewMode}
               />
             </div>
 
@@ -151,9 +161,10 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false }:
               <Input
                 id="phone"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="e.g., 50123456"
-                required
+                onChange={isViewMode ? undefined : (e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder={isViewMode ? undefined : "e.g., 50123456"}
+                required={!isViewMode}
+                disabled={isViewMode}
               />
             </div>
           </div>
@@ -163,35 +174,51 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false }:
               <Label htmlFor="stateCode">
                 State Code *
               </Label>
-              <Select value={formData.stateCode} onValueChange={(value) => setFormData({ ...formData, stateCode: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="55">55</SelectItem>
-                  <SelectItem value="33">33</SelectItem>
-                  <SelectItem value="81">81</SelectItem>
-                  <SelectItem value="444">444</SelectItem>
-                  <SelectItem value="477">477</SelectItem>
-                </SelectContent>
-              </Select>
+              {isViewMode ? (
+                <Input value={formData.stateCode} disabled />
+              ) : (
+                <Select value={formData.stateCode} onValueChange={(value) => setFormData({ ...formData, stateCode: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="55">55</SelectItem>
+                    <SelectItem value="33">33</SelectItem>
+                    <SelectItem value="81">81</SelectItem>
+                    <SelectItem value="444">444</SelectItem>
+                    <SelectItem value="477">477</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="assistance">
                 Assistance
               </Label>
-              <Select value={formData.assistance} onValueChange={(value: any) => setFormData({ ...formData, assistance: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Pending">Pending</SelectItem>
-                  <SelectItem value="Confirmed">Confirmed</SelectItem>
-                  <SelectItem value="Cancelled">Cancelled</SelectItem>
-                  <SelectItem value="Not coming">Not coming</SelectItem>
-                </SelectContent>
-              </Select>
+              {isViewMode ? (
+                <Badge 
+                  variant={
+                    formData.assistance === 'Confirmed' ? 'default' : 
+                    formData.assistance === 'Cancelled' || formData.assistance === 'Not coming' ? 'destructive' : 
+                    'secondary'
+                  }
+                >
+                  {formData.assistance}
+                </Badge>
+              ) : (
+                <Select value={formData.assistance} onValueChange={(value: any) => setFormData({ ...formData, assistance: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Pending">Pending</SelectItem>
+                    <SelectItem value="Confirmed">Confirmed</SelectItem>
+                    <SelectItem value="Cancelled">Cancelled</SelectItem>
+                    <SelectItem value="Not coming">Not coming</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
 
@@ -205,7 +232,8 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false }:
                 type="number"
                 min="0"
                 value={formData.escortCount}
-                onChange={(e) => setFormData({ ...formData, escortCount: parseInt(e.target.value) || 0 })}
+                onChange={isViewMode ? undefined : (e) => setFormData({ ...formData, escortCount: parseInt(e.target.value) || 0 })}
+                disabled={isViewMode}
               />
             </div>
 
@@ -213,14 +241,20 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false }:
               <Label htmlFor="confirmationEmailSent">
                 Confirmation Mail Sent
               </Label>
-              <div className="flex items-center space-x-2 h-10">
-                <Checkbox
-                  id="confirmationEmailSent"
-                  checked={formData.confirmationEmailSent}
-                  onCheckedChange={(checked) => setFormData({ ...formData, confirmationEmailSent: !!checked })}
-                />
-                <span className="text-sm text-muted-foreground">Email has been sent</span>
-              </div>
+              {isViewMode ? (
+                <div className="h-10 flex items-center">
+                  <span className="text-sm">{formData.confirmationEmailSent ? 'Yes' : 'No'}</span>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2 h-10">
+                  <Checkbox
+                    id="confirmationEmailSent"
+                    checked={formData.confirmationEmailSent}
+                    onCheckedChange={(checked) => setFormData({ ...formData, confirmationEmailSent: !!checked })}
+                  />
+                  <span className="text-sm text-muted-foreground">Email has been sent</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -231,20 +265,29 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false }:
             <Textarea
               id="personalMessage"
               value={formData.personalMessage}
-              onChange={(e) => setFormData({ ...formData, personalMessage: e.target.value })}
-              placeholder="Optional personal message for the guest..."
-              className="min-h-[80px] resize-y"
+              onChange={isViewMode ? undefined : (e) => setFormData({ ...formData, personalMessage: e.target.value })}
+              placeholder={isViewMode ? undefined : "Optional personal message for the guest..."}
+              className={isViewMode ? "min-h-[80px] resize-none" : "min-h-[80px] resize-y"}
+              disabled={isViewMode}
             />
           </div>
         </div>
 
         <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave}>
-            Save
-          </Button>
+          {isViewMode ? (
+            <Button variant="outline" onClick={onClose}>
+              Close
+            </Button>
+          ) : (
+            <>
+              <Button variant="outline" onClick={handleCancel}>
+                Cancel
+              </Button>
+              <Button onClick={handleSave}>
+                Save
+              </Button>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>
