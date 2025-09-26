@@ -303,17 +303,9 @@ const EventDetail = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-foreground">Guests</CardTitle>
-              <div className="flex items-center space-x-2">
-                <Input
-                  placeholder="Search guests..."
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  className="max-w-sm bg-background/50 border-border"
-                />
-                <Button onClick={handleAddGuest}>
-                  Add Guest
-                </Button>
-              </div>
+              <Button onClick={handleAddGuest}>
+                Add Guest
+              </Button>
             </div>
           </CardHeader>
           <CardContent>
