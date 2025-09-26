@@ -30,13 +30,27 @@ const Users = () => {
     }
   }, [currentUserRole, navigate]);
 
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('edit');
+
   const handleUpdateUser = (user: User) => {
     setSelectedUser(user);
+    setModalMode('edit');
+    setIsModalOpen(true);
+  };
+
+  const handleCreateUser = () => {
+    setSelectedUser(null);
+    setModalMode('create');
     setIsModalOpen(true);
   };
 
   const handleSaveUser = (updatedUser: User) => {
-    updateUser(updatedUser.id, updatedUser);
+    if (modalMode === 'create') {
+      // Add to users array (this would be handled by the hook in a real app)
+      updateUser(updatedUser.id, updatedUser);
+    } else {
+      updateUser(updatedUser.id, updatedUser);
+    }
     setIsModalOpen(false);
     setSelectedUser(null);
   };
@@ -173,6 +187,12 @@ const Users = () => {
             <CardTitle className="text-3xl font-bold text-foreground">Usuarios</CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="flex justify-between items-center mb-4">
+              <div></div>
+              <Button onClick={handleCreateUser} className="ml-auto">
+                Agregar Usuario
+              </Button>
+            </div>
             <DataTable 
               columns={columns} 
               data={users} 
@@ -190,6 +210,8 @@ const Users = () => {
           setSelectedUser(null);
         }}
         onSave={handleSaveUser}
+        mode={modalMode}
+        existingUsers={users}
       />
     </div>
   );
