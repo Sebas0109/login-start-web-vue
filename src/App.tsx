@@ -13,6 +13,7 @@ import Users from "./pages/Users";
 import Calendar from "./pages/Calendar";
 import Layout from "./components/Layout";
 import NotFound from "./pages/NotFound";
+import ForgotPassword from "./components/ForgotPassword";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Index />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route element={<Layout />}>
             <Route path="/home" element={<Navigate to="/events" replace />} />
             <Route path="/events" element={<Events />} />
