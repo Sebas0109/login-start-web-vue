@@ -14,6 +14,7 @@ import Calendar from "./pages/Calendar";
 import Layout from "./components/Layout";
 import NotFound from "./pages/NotFound";
 import ForgotPassword from "./components/ForgotPassword";
+import RecoverPassword from "./components/RecoverPassword";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
         <Routes>
           <Route path="/login" element={<Index />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/recover-password/:recover_token" element={<RecoverPassword />} />
           <Route element={<Layout />}>
             <Route path="/home" element={<Navigate to="/events" replace />} />
             <Route path="/events" element={<Events />} />
