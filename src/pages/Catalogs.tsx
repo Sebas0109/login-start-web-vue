@@ -90,14 +90,14 @@ const Catalogs = () => {
     },
     {
       accessorKey: 'name',
-      header: 'Name',
+      header: 'Nombre',
       cell: ({ row }) => (
         <span className="font-medium">{row.getValue('name')}</span>
       ),
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: 'Acciones',
       cell: ({ row }) => {
         const group = row.original;
         return (
