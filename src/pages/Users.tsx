@@ -44,8 +44,8 @@ const Users = () => {
   const handleDeleteUser = (userId: string) => {
     deleteUser(userId);
     toast({
-      title: "Success",
-      description: "User deleted successfully",
+      title: "Éxito",
+      description: "Usuario eliminado correctamente",
     });
   };
 
@@ -72,17 +72,17 @@ const Users = () => {
     },
     {
       accessorKey: "name",
-      header: "Name",
+      header: "Nombre",
       cell: ({ row }) => <div>{row.getValue("name")}</div>,
     },
     {
       accessorKey: "paternalSurname",
-      header: "Paternal Surname",
+      header: "Apellido Paterno",
       cell: ({ row }) => <div>{row.getValue("paternalSurname")}</div>,
     },
     {
       accessorKey: "maternalSurname",
-      header: "Maternal Surname",
+      header: "Apellido Materno",
       cell: ({ row }) => <div>{row.getValue("maternalSurname")}</div>,
     },
     {
@@ -92,7 +92,7 @@ const Users = () => {
     },
     {
       accessorKey: "profile",
-      header: "Profile",
+      header: "Perfil",
       cell: ({ row }) => {
         const profile = row.getValue("profile") as string;
         return (
@@ -104,17 +104,17 @@ const Users = () => {
     },
     {
       accessorKey: "phoneNumber",
-      header: "Phone Number",
+      header: "Número de Teléfono",
       cell: ({ row }) => <div className="font-mono">{row.getValue("phoneNumber")}</div>,
     },
     {
       accessorKey: "stateCode",
-      header: "State Code",
+      header: "Código de Estado",
       cell: ({ row }) => <div className="font-mono">{row.getValue("stateCode")}</div>,
     },
     {
       id: "actions",
-      header: "Actions",
+      header: "Acciones",
       cell: ({ row }) => {
         const user = row.original;
 
@@ -129,27 +129,27 @@ const Users = () => {
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => handleUpdateUser(user)}>
                 <Edit className="mr-2 h-4 w-4" />
-                Update
+                Actualizar
               </DropdownMenuItem>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
+                    Borrar
                   </DropdownMenuItem>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete the user
-                      "{user.name} {user.paternalSurname}" and remove their data from the system.
+                      Esta acción no se puede deshacer. Esto eliminará permanentemente al usuario
+                      "{user.name} {user.paternalSurname}" y eliminará todos sus datos del sistema.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
                     <AlertDialogAction onClick={() => handleDeleteUser(user.id)}>
-                      Delete
+                      Borrar
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -170,13 +170,13 @@ const Users = () => {
       <div className="max-w-7xl mx-auto">
         <Card className="bg-gradient-card backdrop-blur-lg border-border/50 shadow-elegant">
           <CardHeader>
-            <CardTitle className="text-3xl font-bold text-foreground">Users</CardTitle>
+            <CardTitle className="text-3xl font-bold text-foreground">Usuarios</CardTitle>
           </CardHeader>
           <CardContent>
             <DataTable 
               columns={columns} 
               data={users} 
-              searchPlaceholder="Search users..."
+              searchPlaceholder="Buscar usuarios..."
             />
           </CardContent>
         </Card>

@@ -39,10 +39,10 @@ const Login = () => {
       <Card className="w-full max-w-md mx-4 relative z-10 bg-gradient-card backdrop-blur-lg border-primary/20 shadow-elegant">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            Welcome Back
+            Bienvenido de vuelta
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Sign in to your account to continue
+            Inicia sesión en tu cuenta para continuar
           </CardDescription>
         </CardHeader>
         
@@ -50,12 +50,12 @@ const Login = () => {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">
-                Email
+                Correo electrónico
               </Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter your email"
+                placeholder="Ingresa tu correo electrónico"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -65,13 +65,13 @@ const Login = () => {
             
             <div className="space-y-2">
               <Label htmlFor="password" className="text-sm font-medium">
-                Password
+                Contraseña
               </Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
+                  placeholder="Ingresa tu contraseña"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -93,19 +93,12 @@ const Login = () => {
               </div>
             </div>
             
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  className="rounded border-border/50 text-primary focus:ring-primary focus:ring-offset-0"
-                />
-                <span className="text-muted-foreground">Remember me</span>
-              </label>
+            <div className="flex items-center justify-end text-sm">
               <a 
                 href="#" 
                 className="text-primary hover:text-primary/80 transition-smooth font-medium"
               >
-                Forgot password?
+                ¿Olvidaste tu contraseña?
               </a>
             </div>
           </CardContent>
@@ -119,25 +112,16 @@ const Login = () => {
               {isLoading ? (
                 <div className="flex items-center space-x-2">
                   <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  <span>Signing in...</span>
+                  <span>Iniciando sesión...</span>
                 </div>
               ) : (
                 <div className="flex items-center space-x-2">
                   <LogIn className="w-4 h-4" />
-                  <span>Sign In</span>
+                  <span>Iniciar sesión</span>
                 </div>
               )}
             </Button>
             
-            <p className="text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <a 
-                href="#" 
-                className="text-primary hover:text-primary/80 transition-smooth font-medium"
-              >
-                Sign up
-              </a>
-            </p>
           </CardFooter>
         </form>
       </Card>

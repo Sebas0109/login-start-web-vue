@@ -152,14 +152,14 @@ const Catalogs = () => {
     },
     {
       accessorKey: 'name',
-      header: 'Name',
+      header: 'Nombre',
       cell: ({ row }) => (
         <span className="font-medium">{row.getValue('name')}</span>
       ),
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: 'Acciones',
       cell: ({ row }) => {
         const guestType = row.original;
         return (
@@ -172,27 +172,27 @@ const Catalogs = () => {
             <DropdownMenuContent align="end" className="bg-gradient-card backdrop-blur-lg border-border/50">
               <DropdownMenuItem onClick={() => handleEdit(guestType)}>
                 <Edit className="mr-2 h-4 w-4" />
-                Update
+                Actualizar
               </DropdownMenuItem>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
+                    Borrar
                   </DropdownMenuItem>
                 </AlertDialogTrigger>
                 <AlertDialogContent className="bg-gradient-card backdrop-blur-lg border-border/50">
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete the guest type
+                      Esta acción no se puede deshacer. Esto eliminará permanentemente el tipo de invitado
                       "{guestType.name}".
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
                     <AlertDialogAction onClick={() => handleDelete(guestType.id)}>
-                      Delete
+                      Borrar
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -207,7 +207,7 @@ const Catalogs = () => {
   const addonColumns: ColumnDef<Addon>[] = useMemo(() => [
     {
       accessorKey: 'image',
-      header: 'Icon',
+      header: 'Icono',
       cell: ({ row }) => (
         <div className="text-lg">{row.getValue('image') || '📦'}</div>
       ),
@@ -221,14 +221,14 @@ const Catalogs = () => {
     },
     {
       accessorKey: 'name',
-      header: 'Name',
+      header: 'Nombre',
       cell: ({ row }) => (
         <span className="font-medium">{row.getValue('name')}</span>
       ),
     },
     {
       accessorKey: 'description',
-      header: 'Description',
+      header: 'Descripción',
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground max-w-xs truncate block">
           {row.getValue('description')}
@@ -237,7 +237,7 @@ const Catalogs = () => {
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: 'Acciones',
       cell: ({ row }) => {
         const addon = row.original;
         return (
@@ -250,27 +250,27 @@ const Catalogs = () => {
             <DropdownMenuContent align="end" className="bg-gradient-card backdrop-blur-lg border-border/50">
               <DropdownMenuItem onClick={() => handleEdit(addon)}>
                 <Edit className="mr-2 h-4 w-4" />
-                Update
+                Actualizar
               </DropdownMenuItem>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
+                    Borrar
                   </DropdownMenuItem>
                 </AlertDialogTrigger>
                 <AlertDialogContent className="bg-gradient-card backdrop-blur-lg border-border/50">
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete the addon
+                      Esta acción no se puede deshacer. Esto eliminará permanentemente el extra
                       "{addon.name}".
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
                     <AlertDialogAction onClick={() => handleDelete(addon.id)}>
-                      Delete
+                      Borrar
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -290,17 +290,17 @@ const Catalogs = () => {
         <DialogContent className="bg-gradient-card backdrop-blur-lg border-border/50">
           <DialogHeader>
             <DialogTitle>
-              Edit {activeTab === 'eventGroups' ? 'Event Group' : 
-                    activeTab === 'guestTypes' ? 'Guest Type' : 'Addon'}
+              Editar {activeTab === 'eventGroups' ? 'Tipo de Evento' : 
+                    activeTab === 'guestTypes' ? 'Tipo de Invitado' : 'Extra'}
             </DialogTitle>
             <DialogDescription>
-              Update the details below and click save when you're done.
+              Actualiza los detalles a continuación y haz clic en guardar cuando termines.
             </DialogDescription>
           </DialogHeader>
           
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">Name</Label>
+              <Label htmlFor="name" className="text-right">Nombre</Label>
               <Input
                 id="name"
                 value={editingItem.name || ''}
@@ -312,7 +312,7 @@ const Catalogs = () => {
             {activeTab === 'addons' && (
               <>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="description" className="text-right">Description</Label>
+                  <Label htmlFor="description" className="text-right">Descripción</Label>
                   <Textarea
                     id="description"
                     value={editingItem.description || ''}
@@ -321,13 +321,13 @@ const Catalogs = () => {
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="image" className="text-right">Icon</Label>
+                  <Label htmlFor="image" className="text-right">Icono</Label>
                   <Input
                     id="image"
                     value={editingItem.image || ''}
                     onChange={(e) => setEditingItem({ ...editingItem, image: e.target.value })}
                     className="col-span-3"
-                    placeholder="Emoji or icon"
+                    placeholder="Emoji o icono"
                   />
                 </div>
               </>
@@ -336,9 +336,9 @@ const Catalogs = () => {
           
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancel
+              Cancelar
             </Button>
-            <Button onClick={handleSave}>Save changes</Button>
+            <Button onClick={handleSave}>Guardar cambios</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -350,21 +350,21 @@ const Catalogs = () => {
       <div className="max-w-7xl mx-auto">
         <Card className="bg-gradient-card backdrop-blur-lg border-border/50 shadow-elegant">
           <CardHeader>
-            <CardTitle className="text-3xl font-bold text-foreground">Catalogs</CardTitle>
+            <CardTitle className="text-3xl font-bold text-foreground">Catálogos</CardTitle>
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as CatalogType)}>
               <TabsList className="grid w-full grid-cols-3 bg-secondary/30">
-                <TabsTrigger value="eventGroups">Event Groups</TabsTrigger>
-                <TabsTrigger value="guestTypes">Guest Types</TabsTrigger>
-                <TabsTrigger value="addons">Addons</TabsTrigger>
+                <TabsTrigger value="eventGroups">Tipo de Evento</TabsTrigger>
+                <TabsTrigger value="guestTypes">Tipo de Invitado</TabsTrigger>
+                <TabsTrigger value="addons">Extras</TabsTrigger>
               </TabsList>
               
               <TabsContent value="eventGroups" className="mt-6">
                 <DataTable
                   columns={eventGroupColumns}
                   data={eventGroups}
-                  searchPlaceholder="Search event groups..."
+                  searchPlaceholder="Buscar tipos de evento..."
                 />
               </TabsContent>
               
@@ -372,7 +372,7 @@ const Catalogs = () => {
                 <DataTable
                   columns={guestTypeColumns}
                   data={guestTypes}
-                  searchPlaceholder="Search guest types..."
+                  searchPlaceholder="Buscar tipos de invitado..."
                 />
               </TabsContent>
               
@@ -380,7 +380,7 @@ const Catalogs = () => {
                 <DataTable
                   columns={addonColumns}
                   data={addons}
-                  searchPlaceholder="Search addons..."
+                  searchPlaceholder="Buscar extras..."
                 />
               </TabsContent>
             </Tabs>

@@ -72,7 +72,7 @@ const EventModal: React.FC<EventModalProps> = ({ event, isOpen, onClose }) => {
         <DialogContent className="max-w-md bg-card backdrop-blur-lg border-border/50">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-foreground">
-              Event Details
+              Detalles del Evento
             </DialogTitle>
           </DialogHeader>
           
@@ -85,7 +85,7 @@ const EventModal: React.FC<EventModalProps> = ({ event, isOpen, onClose }) => {
             </div>
 
             <div>
-              <p className="text-sm font-medium text-foreground mb-1">Owner</p>
+              <p className="text-sm font-medium text-foreground mb-1">Cliente</p>
               <p className="text-sm text-muted-foreground">{event.ownerName}</p>
             </div>
 
@@ -103,7 +103,7 @@ const EventModal: React.FC<EventModalProps> = ({ event, isOpen, onClose }) => {
                 variant="outline"
               >
                 <Eye className="h-4 w-4 mr-2" />
-                View
+                Ver
               </Button>
               
               {currentRole === 'ADMIN' && (
@@ -114,7 +114,7 @@ const EventModal: React.FC<EventModalProps> = ({ event, isOpen, onClose }) => {
                     variant="default"
                   >
                     <Edit className="h-4 w-4 mr-2" />
-                    Update
+                    Actualizar
                   </Button>
                   
                   <Button
@@ -123,7 +123,7 @@ const EventModal: React.FC<EventModalProps> = ({ event, isOpen, onClose }) => {
                     variant="destructive"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
+                    Borrar
                   </Button>
                 </>
               )}
@@ -135,15 +135,15 @@ const EventModal: React.FC<EventModalProps> = ({ event, isOpen, onClose }) => {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the event "{event.name}".
+              Esta acción no se puede deshacer. Esto eliminará permanentemente el evento "{event.name}".
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
-              Delete
+              Borrar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

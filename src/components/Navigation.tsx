@@ -20,23 +20,23 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   
   const mockNotifications = [
-    { id: 1, text: "New event created", time: "2 min ago" },
-    { id: 2, text: "Catalog updated", time: "5 min ago" },
-    { id: 3, text: "Reminder: Meeting at 2pm", time: "10 min ago" },
-    { id: 4, text: "User registered", time: "15 min ago" },
-    { id: 5, text: "Calendar sync completed", time: "20 min ago" },
+    { id: 1, text: "Nuevo evento creado", time: "hace 2 min" },
+    { id: 2, text: "Catálogo actualizado", time: "hace 5 min" },
+    { id: 3, text: "Recordatorio: Reunión a las 2pm", time: "hace 10 min" },
+    { id: 4, text: "Usuario registrado", time: "hace 15 min" },
+    { id: 5, text: "Sincronización de calendario completada", time: "hace 20 min" },
   ];
 
   const adminMenuItems = [
-    { name: "Events", path: "/events" },
-    { name: "Catalogs", path: "/catalogs" },
-    { name: "Users", path: "/users" },
-    { name: "Calendar", path: "/calendar" },
+    { name: "Eventos", path: "/events" },
+    { name: "Catalogos", path: "/catalogs" },
+    { name: "Usuarios", path: "/users" },
+    { name: "Calendario", path: "/calendar" },
   ];
 
   const clientMenuItems = [
-    { name: "Events", path: "/events" },
-    { name: "Calendar", path: "/calendar" },
+    { name: "Eventos", path: "/events" },
+    { name: "Calendario", path: "/calendar" },
   ];
 
   const menuItems = currentRole === "ADMIN" ? adminMenuItems : clientMenuItems;
@@ -145,7 +145,7 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
                 <Card className="absolute right-0 top-full mt-2 w-80 max-h-96 overflow-hidden bg-gradient-card backdrop-blur-lg border-border/50 shadow-elegant">
                   <CardContent className="p-0">
                     <div className="p-4 border-b border-border/30">
-                      <h3 className="font-semibold text-foreground">Notifications</h3>
+                      <h3 className="font-semibold text-foreground">Notificaciones</h3>
                     </div>
                     <div className="max-h-64 overflow-y-auto">
                       {mockNotifications.map((notification) => (

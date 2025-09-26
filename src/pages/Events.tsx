@@ -64,28 +64,31 @@ const Events = () => {
       },
       {
         accessorKey: 'date',
-        header: 'Date',
+        header: 'Fecha',
         cell: ({ row }) => (
           <span className="font-medium">{row.getValue('date')}</span>
         ),
       },
       {
         accessorKey: 'time',
-        header: 'Time',
-        cell: ({ row }) => (
-          <span className="font-medium">{row.getValue('time')}</span>
-        ),
+        header: 'Hora',
+        cell: ({ row }) => {
+          const time = row.getValue('time') as string;
+          return (
+            <span className="font-medium">{time || '—'}</span>
+          );
+        },
       },
       {
         accessorKey: 'name',
-        header: 'Event Name',
+        header: 'Titulo',
         cell: ({ row }) => (
           <span className="font-medium">{row.getValue('name')}</span>
         ),
       },
       {
         accessorKey: 'ownerEmails',
-        header: 'Owner Emails',
+        header: 'Correos',
         cell: ({ row }) => {
           const emails = row.getValue('ownerEmails') as string[];
           if (emails.length === 1) {
@@ -116,7 +119,7 @@ const Events = () => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Badge variant="secondary" className="text-xs cursor-help whitespace-nowrap">
-                        +{emails.length - 1} more
+                        +{emails.length - 1} más
                       </Badge>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -135,7 +138,7 @@ const Events = () => {
       },
       {
         accessorKey: 'package',
-        header: 'Package',
+        header: 'Paquete',
         cell: ({ row }) => {
           const packageType = row.getValue('package') as string;
           return (
@@ -147,7 +150,7 @@ const Events = () => {
       },
       {
         accessorKey: 'eventGroup',
-        header: 'Event Group',
+        header: 'Tipo de Evento',
         cell: ({ row }) => (
           <Badge variant="outline">{row.getValue('eventGroup')}</Badge>
         ),
@@ -158,7 +161,7 @@ const Events = () => {
     if (currentRole === 'ADMIN') {
       baseColumns.push({
         accessorKey: 'ownerName',
-        header: 'Owner Name',
+        header: 'Cliente',
         cell: ({ row }) => (
           <span className="font-medium">{row.getValue('ownerName')}</span>
         ),
@@ -168,7 +171,7 @@ const Events = () => {
     // Add Actions column
     baseColumns.push({
       id: 'actions',
-      header: 'Actions',
+      header: 'Acciones',
       cell: ({ row }) => {
         const event = row.original;
         return (
@@ -181,33 +184,33 @@ const Events = () => {
             <DropdownMenuContent align="end" className="bg-gradient-card backdrop-blur-lg border-border/50">
                <DropdownMenuItem onClick={() => handleViewEvent(event.id)}>
                  <Eye className="mr-2 h-4 w-4" />
-                 View Event
+                 Ver
                </DropdownMenuItem>
                {currentRole === 'ADMIN' && (
                  <DropdownMenuItem onClick={() => navigate(`/events/${event.id}/edit`)}>
                    <Edit className="mr-2 h-4 w-4" />
-                   Update Event
+                   Actualizar
                  </DropdownMenuItem>
                )}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Event
+                    Borrar
                   </DropdownMenuItem>
                 </AlertDialogTrigger>
                 <AlertDialogContent className="bg-gradient-card backdrop-blur-lg border-border/50">
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete the event
+                      Esta acción no se puede deshacer. Esto eliminará permanentemente el evento
                       "{event.name}".
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
                     <AlertDialogAction onClick={() => handleDeleteEvent(event.id)}>
-                      Delete
+                      Borrar
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -226,13 +229,13 @@ const Events = () => {
       <div className="max-w-7xl mx-auto">
         <Card className="bg-gradient-card backdrop-blur-lg border-border/50 shadow-elegant">
           <CardHeader>
-            <CardTitle className="text-3xl font-bold text-foreground">Events</CardTitle>
+            <CardTitle className="text-3xl font-bold text-foreground">Eventos</CardTitle>
           </CardHeader>
           <CardContent>
             <DataTable
               columns={columns}
               data={events}
-              searchPlaceholder="Search events..."
+              searchPlaceholder="Buscar..."
             />
           </CardContent>
         </Card>

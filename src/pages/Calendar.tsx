@@ -273,14 +273,14 @@ const Calendar = () => {
       <div className="max-w-7xl mx-auto">
         <Card className="bg-gradient-card backdrop-blur-lg border-border/50 shadow-elegant">
           <CardHeader>
-            <CardTitle className="text-3xl font-bold text-foreground">Calendar</CardTitle>
+            <CardTitle className="text-3xl font-bold text-foreground">Calendario</CardTitle>
           </CardHeader>
           <CardContent>
             <Tabs value={view} onValueChange={(value) => setView(value as CalendarView)}>
               <TabsList className="grid w-full grid-cols-4 bg-secondary/30">
-                <TabsTrigger value="today">Today</TabsTrigger>
-                <TabsTrigger value="week">Week</TabsTrigger>
-                <TabsTrigger value="month">Month</TabsTrigger>
+                <TabsTrigger value="today">Hoy</TabsTrigger>
+                <TabsTrigger value="week">Semana</TabsTrigger>
+                <TabsTrigger value="month">Mes</TabsTrigger>
                 <TabsTrigger value="agenda">Agenda</TabsTrigger>
               </TabsList>
               
