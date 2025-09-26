@@ -160,7 +160,7 @@ const EventDetail = () => {
       accessorKey: 'confirmationEmailSent',
       header: 'Confirmation Mail Sent',
       cell: ({ row }) => (
-        <span>{row.getValue('confirmationEmailSent') ? 'true' : 'false'}</span>
+        <span>{row.getValue('confirmationEmailSent') ? 'Yes' : 'No'}</span>
       ),
     },
     {
