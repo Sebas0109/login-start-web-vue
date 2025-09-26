@@ -110,13 +110,13 @@ const Catalogs = () => {
             <DropdownMenuContent align="end" className="bg-gradient-card backdrop-blur-lg border-border/50">
               <DropdownMenuItem onClick={() => handleEdit(group)}>
                 <Edit className="mr-2 h-4 w-4" />
-                Update
+                Actualizar
               </DropdownMenuItem>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
+                    Borrar
                   </DropdownMenuItem>
                 </AlertDialogTrigger>
                 <AlertDialogContent className="bg-gradient-card backdrop-blur-lg border-border/50">
