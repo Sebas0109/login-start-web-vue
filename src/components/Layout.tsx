@@ -8,7 +8,7 @@ const Layout = () => {
   const [currentRole, setCurrentRole] = useState<Role>("ADMIN");
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-secondary">
       <Navigation currentRole={currentRole} onRoleChange={setCurrentRole} />
       <Outlet context={{ currentRole }} />
     </div>
