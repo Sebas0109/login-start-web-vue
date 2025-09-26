@@ -8,8 +8,9 @@ export interface Guest {
   stateCode: string;
   phone: string;
   escortCount: number;
-  assistance: 'Confirmed' | 'Cancelled' | 'Pending';
+  assistance: 'Confirmed' | 'Cancelled' | 'Pending' | 'Not coming';
   confirmationEmailSent: boolean;
+  personalMessage?: string;
 }
 
 export interface Event {

@@ -19,11 +19,12 @@ const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { events, updateGuest, deleteGuest } = useMockData();
+  const { events, updateEvent, updateGuest, deleteGuest } = useMockData();
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
   const [isGuestModalOpen, setIsGuestModalOpen] = useState(false);
   const [guestToDelete, setGuestToDelete] = useState<Guest | null>(null);
   const [searchValue, setSearchValue] = useState('');
+  const [isAddingGuest, setIsAddingGuest] = useState(false);
 
   const event = events.find(e => e.id === id);
 
@@ -48,7 +49,7 @@ const EventDetail = () => {
   const kpis = useMemo(() => {
     const totalInvited = event.guests.length;
     const totalConfirmed = event.guests.filter(g => g.assistance === 'Confirmed').length;
-    const totalCancelled = event.guests.filter(g => g.assistance === 'Cancelled').length;
+    const totalCancelled = event.guests.filter(g => g.assistance === 'Cancelled' || g.assistance === 'Not coming').length;
     const totalNoResponse = totalInvited - totalConfirmed - totalCancelled;
 
     return {
@@ -77,6 +78,13 @@ const EventDetail = () => {
 
   const handleUpdateGuest = (guest: Guest) => {
     setSelectedGuest(guest);
+    setIsAddingGuest(false);
+    setIsGuestModalOpen(true);
+  };
+
+  const handleAddGuest = () => {
+    setSelectedGuest(null);
+    setIsAddingGuest(true);
     setIsGuestModalOpen(true);
   };
 
@@ -96,9 +104,42 @@ const EventDetail = () => {
   };
 
   const handleSaveGuest = (guestData: Partial<Guest>) => {
-    if (selectedGuest && id) {
+    if (isAddingGuest && id) {
+      // Add new guest
+      const newGuest: Guest = {
+        id: crypto.randomUUID(),
+        name: guestData.name || '',
+        paternalSurname: guestData.paternalSurname || '',
+        maternalSurname: guestData.maternalSurname || '',
+        stateCode: guestData.stateCode || '55',
+        phone: guestData.phone || '',
+        escortCount: guestData.escortCount || 0,
+        assistance: guestData.assistance || 'Pending',
+        confirmationEmailSent: false,
+        personalMessage: guestData.personalMessage || ''
+      };
+      
+      // Add guest to the event
+      const updatedEvent = {
+        ...event,
+        guests: [...event.guests, newGuest]
+      };
+      updateEvent(event.id, { guests: updatedEvent.guests });
+      
+      toast({
+        title: "Guest added",
+        description: "Guest has been successfully added.",
+      });
+    } else if (selectedGuest && id) {
       updateGuest(id, selectedGuest.id, guestData);
+      toast({
+        title: "Guest updated",
+        description: "Guest information has been successfully updated.",
+      });
     }
+    setIsGuestModalOpen(false);
+    setSelectedGuest(null);
+    setIsAddingGuest(false);
   };
 
   const columns: ColumnDef<Guest>[] = [
@@ -123,7 +164,7 @@ const EventDetail = () => {
           <Badge 
             variant={
               assistance === 'Confirmed' ? 'default' : 
-              assistance === 'Cancelled' ? 'destructive' : 
+              assistance === 'Cancelled' || assistance === 'Not coming' ? 'destructive' : 
               'secondary'
             }
           >
@@ -260,14 +301,19 @@ const EventDetail = () => {
         {/* Guests Table */}
         <Card className="bg-gradient-card backdrop-blur-lg border-border/50 shadow-elegant">
           <CardHeader>
-            <CardTitle className="text-foreground">Guests</CardTitle>
-            <div className="max-w-sm">
-              <Input
-                placeholder="Search guests..."
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                className="bg-background/50 border-border"
-              />
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-foreground">Guests</CardTitle>
+              <div className="flex items-center space-x-2">
+                <Input
+                  placeholder="Search guests..."
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  className="max-w-sm bg-background/50 border-border"
+                />
+                <Button onClick={handleAddGuest}>
+                  Add Guest
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -285,9 +331,11 @@ const EventDetail = () => {
           onClose={() => {
             setIsGuestModalOpen(false);
             setSelectedGuest(null);
+            setIsAddingGuest(false);
           }}
           guest={selectedGuest}
           onSave={handleSaveGuest}
+          isAdding={isAddingGuest}
         />
 
         {/* Delete Confirmation Dialog */}

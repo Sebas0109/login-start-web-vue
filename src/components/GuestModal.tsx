@@ -1,56 +1,83 @@
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { mockStateCodes, Guest } from '@/data/mockData';
-import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea';
+import type { Guest } from '@/data/mockData';
 
 interface GuestModalProps {
   isOpen: boolean;
   onClose: () => void;
-  guest: Guest | null;
+  guest?: Guest | null;
   onSave: (guestData: Partial<Guest>) => void;
+  isAdding?: boolean;
 }
 
-export const GuestModal = ({ isOpen, onClose, guest, onSave }: GuestModalProps) => {
-  const { toast } = useToast();
+export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false }: GuestModalProps) => {
   const [formData, setFormData] = useState({
-    name: guest?.name || '',
-    paternalSurname: guest?.paternalSurname || '',
-    maternalSurname: guest?.maternalSurname || '',
-    stateCode: guest?.stateCode || '',
-    phone: guest?.phone || '',
-    assistance: guest?.assistance || 'Pending',
-    escortCount: guest?.escortCount || 0,
-    confirmationEmailSent: guest?.confirmationEmailSent || false
+    name: '',
+    paternalSurname: '',
+    maternalSurname: '',
+    stateCode: '55',
+    phone: '',
+    escortCount: 0,
+    assistance: 'Pending' as 'Confirmed' | 'Cancelled' | 'Pending' | 'Not coming',
+    confirmationEmailSent: false,
+    personalMessage: ''
   });
+
+  useEffect(() => {
+    if (guest && !isAdding) {
+      setFormData({
+        name: guest.name || '',
+        paternalSurname: guest.paternalSurname || '',
+        maternalSurname: guest.maternalSurname || '',
+        stateCode: guest.stateCode || '55',
+        phone: guest.phone || '',
+        escortCount: guest.escortCount || 0,
+        assistance: guest.assistance || 'Pending' as 'Confirmed' | 'Cancelled' | 'Pending' | 'Not coming',
+        confirmationEmailSent: guest.confirmationEmailSent || false,
+        personalMessage: guest.personalMessage || ''
+      });
+    } else {
+      setFormData({
+        name: '',
+        paternalSurname: '',
+        maternalSurname: '',
+        stateCode: '55',
+        phone: '',
+        escortCount: 0,
+        assistance: 'Pending' as 'Confirmed' | 'Cancelled' | 'Pending' | 'Not coming',
+        confirmationEmailSent: false,
+        personalMessage: ''
+      });
+    }
+  }, [guest, isOpen, isAdding]);
 
   const handleSave = () => {
     if (!formData.name.trim() || !formData.paternalSurname.trim() || !formData.phone.trim()) {
-      toast({
-        title: "Validation Error",
-        description: "Name, paternal surname, and phone are required.",
-        variant: "destructive"
-      });
       return;
     }
 
-    if (!/^\d{7,10}$/.test(formData.phone)) {
-      toast({
-        title: "Validation Error", 
-        description: "Phone must be 7-10 digits without state code.",
-        variant: "destructive"
-      });
+    const phoneRegex = /^[\d\s\-]+$/;
+    if (!phoneRegex.test(formData.phone)) {
       return;
     }
 
     onSave(formData);
-    toast({
-      title: "Success",
-      description: "Guest updated successfully"
+    setFormData({
+      name: '',
+      paternalSurname: '',
+      maternalSurname: '',
+      stateCode: '55',
+      phone: '',
+      escortCount: 0,
+      assistance: 'Pending' as 'Confirmed' | 'Cancelled' | 'Pending' | 'Not coming',
+      confirmationEmailSent: false,
+      personalMessage: ''
     });
     onClose();
   };
@@ -60,144 +87,158 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave }: GuestModalProps) 
       name: guest?.name || '',
       paternalSurname: guest?.paternalSurname || '',
       maternalSurname: guest?.maternalSurname || '',
-      stateCode: guest?.stateCode || '',
+      stateCode: guest?.stateCode || '55',
       phone: guest?.phone || '',
-      assistance: guest?.assistance || 'Pending',
       escortCount: guest?.escortCount || 0,
-      confirmationEmailSent: guest?.confirmationEmailSent || false
+      assistance: guest?.assistance || 'Pending' as 'Confirmed' | 'Cancelled' | 'Pending' | 'Not coming',
+      confirmationEmailSent: guest?.confirmationEmailSent || false,
+      personalMessage: guest?.personalMessage || ''
     });
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent 
-        className="sm:max-w-[500px] bg-gradient-card backdrop-blur-lg border-border/50"
-        aria-describedby="guest-modal-description"
-      >
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle className="text-foreground">
-            {guest ? 'Update Guest' : 'Add Guest'}
-          </DialogTitle>
+          <DialogTitle>{isAdding ? 'Add Guest' : 'Update Guest'}</DialogTitle>
         </DialogHeader>
-        
-        <div id="guest-modal-description" className="sr-only">
-          Form to {guest ? 'update' : 'add'} guest information including name, contact details, and assistance status
-        </div>
 
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="name">Name *</Label>
+        <div className="grid gap-4 py-4">
+          {/* Responsive grid: stack on mobile, 2-column on desktop */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">
+                Name *
+              </Label>
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="bg-background/50 border-border"
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
               />
             </div>
-            <div>
-              <Label htmlFor="paternalSurname">Paternal Surname *</Label>
+
+            <div className="space-y-2">
+              <Label htmlFor="paternalSurname">
+                Paternal Surname *
+              </Label>
               <Input
                 id="paternalSurname"
                 value={formData.paternalSurname}
-                onChange={(e) => setFormData(prev => ({ ...prev, paternalSurname: e.target.value }))}
-                className="bg-background/50 border-border"
+                onChange={(e) => setFormData({ ...formData, paternalSurname: e.target.value })}
+                required
               />
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="maternalSurname">Maternal Surname</Label>
-            <Input
-              id="maternalSurname"
-              value={formData.maternalSurname}
-              onChange={(e) => setFormData(prev => ({ ...prev, maternalSurname: e.target.value }))}
-              className="bg-background/50 border-border"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="maternalSurname">
+                Maternal Surname
+              </Label>
+              <Input
+                id="maternalSurname"
+                value={formData.maternalSurname}
+                onChange={(e) => setFormData({ ...formData, maternalSurname: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone">
+                Phone Number *
+              </Label>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="e.g., 50123456"
+                required
+              />
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="stateCode">State Code</Label>
-              <Select 
-                value={formData.stateCode} 
-                onValueChange={(value) => setFormData(prev => ({ ...prev, stateCode: value }))}
-              >
-                <SelectTrigger className="bg-background/50 border-border">
-                  <SelectValue placeholder="Select state code" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="stateCode">
+                State Code *
+              </Label>
+              <Select value={formData.stateCode} onValueChange={(value) => setFormData({ ...formData, stateCode: value })}>
+                <SelectTrigger>
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockStateCodes.map((state) => (
-                    <SelectItem key={state.id} value={state.id}>
-                      {state.name}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="55">55</SelectItem>
+                  <SelectItem value="33">33</SelectItem>
+                  <SelectItem value="81">81</SelectItem>
+                  <SelectItem value="444">444</SelectItem>
+                  <SelectItem value="477">477</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label htmlFor="phone">Phone Number *</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value.replace(/\D/g, '') }))}
-                placeholder="7-10 digits"
-                className="bg-background/50 border-border"
-              />
-              <p className="text-xs text-muted-foreground mt-1">Enter number without state/area code</p>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="assistance">Assistance</Label>
-              <Select 
-                value={formData.assistance} 
-                onValueChange={(value: 'Pending' | 'Confirmed' | 'Cancelled') => 
-                  setFormData(prev => ({ ...prev, assistance: value }))
-                }
-              >
-                <SelectTrigger className="bg-background/50 border-border">
+            <div className="space-y-2">
+              <Label htmlFor="assistance">
+                Assistance
+              </Label>
+              <Select value={formData.assistance} onValueChange={(value: any) => setFormData({ ...formData, assistance: value })}>
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Pending">Pending</SelectItem>
                   <SelectItem value="Confirmed">Confirmed</SelectItem>
                   <SelectItem value="Cancelled">Cancelled</SelectItem>
+                  <SelectItem value="Not coming">Not coming</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label htmlFor="escortCount">Number of Escorts</Label>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="escortCount">
+                Escorts
+              </Label>
               <Input
                 id="escortCount"
                 type="number"
                 min="0"
                 value={formData.escortCount}
-                onChange={(e) => setFormData(prev => ({ 
-                  ...prev, 
-                  escortCount: Math.max(0, parseInt(e.target.value) || 0) 
-                }))}
-                className="bg-background/50 border-border"
+                onChange={(e) => setFormData({ ...formData, escortCount: parseInt(e.target.value) || 0 })}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmationEmailSent">
+                Confirmation Mail Sent
+              </Label>
+              <div className="flex items-center space-x-2 h-10">
+                <Checkbox
+                  id="confirmationEmailSent"
+                  checked={formData.confirmationEmailSent}
+                  onCheckedChange={(checked) => setFormData({ ...formData, confirmationEmailSent: !!checked })}
+                />
+                <span className="text-sm text-muted-foreground">Email has been sent</span>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="confirmationEmailSent"
-              checked={formData.confirmationEmailSent}
-              onCheckedChange={(checked) => 
-                setFormData(prev => ({ ...prev, confirmationEmailSent: !!checked }))
-              }
+          <div className="space-y-2">
+            <Label htmlFor="personalMessage">
+              Personal Message
+            </Label>
+            <Textarea
+              id="personalMessage"
+              value={formData.personalMessage}
+              onChange={(e) => setFormData({ ...formData, personalMessage: e.target.value })}
+              placeholder="Optional personal message for the guest..."
+              className="min-h-[80px] resize-y"
             />
-            <Label htmlFor="confirmationEmailSent">Confirmation mail sent</Label>
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4">
+        <div className="flex justify-end gap-3">
           <Button variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
