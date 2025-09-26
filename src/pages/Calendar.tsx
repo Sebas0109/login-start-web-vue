@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addDays, startOfWeek, endOfWeek } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
@@ -57,14 +58,14 @@ const Calendar = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">
-            {format(currentDate, 'EEEE, MMMM d, yyyy')}
+            {format(currentDate, 'EEEE, MMMM d, yyyy', { locale: es })}
           </h3>
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="sm" onClick={() => navigateDate('prev')}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>
-              Today
+              Hoy
             </Button>
             <Button variant="outline" size="sm" onClick={() => navigateDate('next')}>
               <ChevronRight className="h-4 w-4" />
@@ -74,7 +75,7 @@ const Calendar = () => {
         
         <div className="space-y-2">
           {todayEvents.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">No events scheduled for this day</p>
+            <p className="text-muted-foreground text-center py-8">No hay eventos programados para este día</p>
           ) : (
             todayEvents.map(event => (
               <Card
@@ -106,14 +107,14 @@ const Calendar = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">
-            {format(startWeek, 'MMM d')} - {format(endWeek, 'MMM d, yyyy')}
+            {format(startWeek, 'MMM d', { locale: es })} - {format(endWeek, 'MMM d, yyyy', { locale: es })}
           </h3>
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="sm" onClick={() => navigateDate('prev')}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>
-              This Week
+              Esta Semana
             </Button>
             <Button variant="outline" size="sm" onClick={() => navigateDate('next')}>
               <ChevronRight className="h-4 w-4" />
@@ -128,7 +129,7 @@ const Calendar = () => {
               <Card key={day.toISOString()} className="min-h-[120px] bg-gradient-card backdrop-blur-lg border-border/30">
                 <CardContent className="p-2">
                   <div className={`text-sm font-medium mb-2 ${isToday(day) ? 'text-primary' : ''}`}>
-                    {format(day, 'EEE d')}
+                    {format(day, 'EEE d', { locale: es })}
                   </div>
                   <div className="space-y-1">
                     {dayEvents.map(event => (
@@ -165,14 +166,14 @@ const Calendar = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">
-            {format(currentDate, 'MMMM yyyy')}
+            {format(currentDate, 'MMMM yyyy', { locale: es })}
           </h3>
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="sm" onClick={() => navigateDate('prev')}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>
-              Today
+              Hoy
             </Button>
             <Button variant="outline" size="sm" onClick={() => navigateDate('next')}>
               <ChevronRight className="h-4 w-4" />
@@ -181,7 +182,7 @@ const Calendar = () => {
         </div>
 
         <div className="grid grid-cols-7 gap-1">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+          {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(day => (
             <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground">
               {day}
             </div>
@@ -215,7 +216,7 @@ const Calendar = () => {
                     ))}
                     {dayEvents.length > 2 && (
                       <Badge variant="outline" className="block text-xs">
-                        +{dayEvents.length - 2} more
+                        +{dayEvents.length - 2} más
                       </Badge>
                     )}
                   </div>
@@ -235,7 +236,7 @@ const Calendar = () => {
 
     return (
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Upcoming Events</h3>
+        <h3 className="text-lg font-semibold">Próximos Eventos</h3>
         <div className="space-y-2">
           {sortedEvents.slice(0, 20).map(event => (
             <Card
@@ -247,7 +248,7 @@ const Calendar = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h4 className="font-medium">{event.name}</h4>
-                    <p className="text-sm text-muted-foreground">{format(new Date(event.date), 'EEEE, MMMM d, yyyy')}</p>
+                    <p className="text-sm text-muted-foreground">{format(new Date(event.date), 'EEEE, MMMM d, yyyy', { locale: es })}</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Badge variant="outline">{event.eventGroup}</Badge>
