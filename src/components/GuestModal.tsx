@@ -197,15 +197,17 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
                 Assistance
               </Label>
               {isViewMode ? (
-                <Badge 
-                  variant={
-                    formData.assistance === 'Confirmed' ? 'default' : 
-                    formData.assistance === 'Cancelled' || formData.assistance === 'Not coming' ? 'destructive' : 
-                    'secondary'
-                  }
-                >
-                  {formData.assistance}
-                </Badge>
+                <div className="h-10 flex items-center">
+                  <Badge 
+                    variant={
+                      formData.assistance === 'Confirmed' ? 'default' : 
+                      formData.assistance === 'Cancelled' || formData.assistance === 'Not coming' ? 'destructive' : 
+                      'secondary'
+                    }
+                  >
+                    {formData.assistance}
+                  </Badge>
+                </div>
               ) : (
                 <Select value={formData.assistance} onValueChange={(value: any) => setFormData({ ...formData, assistance: value })}>
                   <SelectTrigger>
