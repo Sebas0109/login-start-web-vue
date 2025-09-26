@@ -79,8 +79,12 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
         <div className="flex justify-between items-center h-16">
           {/* Left: Logo */}
           <div className="flex items-center">
-            <Link to="/home" className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              AppName
+            <Link to="/home" className="flex items-center">
+              <img 
+                src="/src/assets/logo.png" 
+                alt="Company Logo" 
+                className="h-8 w-auto"
+              />
             </Link>
           </div>
 
