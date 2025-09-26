@@ -1,5 +1,17 @@
 import { v4 as uuidv4 } from 'uuid';
 
+export interface Guest {
+  id: string;
+  name: string;
+  paternalSurname: string;
+  maternalSurname: string;
+  stateCode: string;
+  phone: string;
+  escortCount: number;
+  assistance: 'Confirmed' | 'Cancelled' | 'Pending';
+  confirmationEmailSent: boolean;
+}
+
 export interface Event {
   id: string;
   date: string;
@@ -15,6 +27,7 @@ export interface Event {
   ownerUserId: string;
   escortLimit: number;
   guestLimit: number;
+  guests: Guest[];
 }
 
 export interface User {
@@ -62,7 +75,42 @@ export const mockEvents: Event[] = [
     ownerName: 'Sarah Jones',
     ownerUserId: 'user_001',
     escortLimit: 2,
-    guestLimit: 50
+    guestLimit: 50,
+    guests: [
+      {
+        id: uuidv4(),
+        name: 'Ana',
+        paternalSurname: 'Hernández',
+        maternalSurname: 'Ramírez',
+        stateCode: '55',
+        phone: '50123456',
+        escortCount: 2,
+        assistance: 'Confirmed',
+        confirmationEmailSent: true
+      },
+      {
+        id: uuidv4(),
+        name: 'Carlos',
+        paternalSurname: 'García',
+        maternalSurname: 'López',
+        stateCode: '33',
+        phone: '98765432',
+        escortCount: 1,
+        assistance: 'Pending',
+        confirmationEmailSent: false
+      },
+      {
+        id: uuidv4(),
+        name: 'María',
+        paternalSurname: 'Rodríguez',
+        maternalSurname: 'Martínez',
+        stateCode: '81',
+        phone: '11223344',
+        escortCount: 0,
+        assistance: 'Cancelled',
+        confirmationEmailSent: true
+      }
+    ]
   },
   {
     id: uuidv4(),
@@ -78,7 +126,8 @@ export const mockEvents: Event[] = [
     ownerName: 'Jennifer Smith',
     ownerUserId: 'user_002',
     escortLimit: 1,
-    guestLimit: 200
+    guestLimit: 200,
+    guests: []
   },
   {
     id: uuidv4(),
@@ -94,7 +143,8 @@ export const mockEvents: Event[] = [
     ownerName: 'Emily Miller',
     ownerUserId: 'user_003',
     escortLimit: 2,
-    guestLimit: 150
+    guestLimit: 150,
+    guests: []
   },
   {
     id: uuidv4(),
@@ -110,7 +160,8 @@ export const mockEvents: Event[] = [
     ownerName: 'Maria Rodriguez',
     ownerUserId: 'user_004',
     escortLimit: 1,
-    guestLimit: 80
+    guestLimit: 80,
+    guests: []
   },
   {
     id: uuidv4(),
@@ -126,7 +177,8 @@ export const mockEvents: Event[] = [
     ownerName: 'Lisa Williams',
     ownerUserId: 'user_005',
     escortLimit: 0,
-    guestLimit: 30
+    guestLimit: 30,
+    guests: []
   },
   {
     id: uuidv4(),
@@ -142,7 +194,8 @@ export const mockEvents: Event[] = [
     ownerName: 'Robert Davis',
     ownerUserId: 'user_005',
     escortLimit: 2,
-    guestLimit: 40
+    guestLimit: 40,
+    guests: []
   },
   {
     id: uuidv4(),
@@ -158,7 +211,8 @@ export const mockEvents: Event[] = [
     ownerName: 'Anna Taylor',
     ownerUserId: 'user_006',
     escortLimit: 1,
-    guestLimit: 100
+    guestLimit: 100,
+    guests: []
   },
   {
     id: uuidv4(),
@@ -174,7 +228,8 @@ export const mockEvents: Event[] = [
     ownerName: 'Susan Brown',
     ownerUserId: 'user_007',
     escortLimit: 1,
-    guestLimit: 60
+    guestLimit: 60,
+    guests: []
   },
   {
     id: uuidv4(),
@@ -190,7 +245,8 @@ export const mockEvents: Event[] = [
     ownerName: 'Michael Wilson',
     ownerUserId: 'user_007',
     escortLimit: 2,
-    guestLimit: 70
+    guestLimit: 70,
+    guests: []
   },
   {
     id: uuidv4(),
@@ -206,7 +262,8 @@ export const mockEvents: Event[] = [
     ownerName: 'Patricia Garcia',
     ownerUserId: 'user_008',
     escortLimit: 2,
-    guestLimit: 90
+    guestLimit: 90,
+    guests: []
   },
   {
     id: uuidv4(),
@@ -222,7 +279,8 @@ export const mockEvents: Event[] = [
     ownerName: 'David Thompson',
     ownerUserId: 'user_001',
     escortLimit: 1,
-    guestLimit: 300
+    guestLimit: 300,
+    guests: []
   },
   {
     id: uuidv4(),
@@ -238,7 +296,8 @@ export const mockEvents: Event[] = [
     ownerName: 'Helen Martinez',
     ownerUserId: 'user_002',
     escortLimit: 0,
-    guestLimit: 25
+    guestLimit: 25,
+    guests: []
   },
   {
     id: uuidv4(),
@@ -254,7 +313,8 @@ export const mockEvents: Event[] = [
     ownerName: 'Patrick O\'Brien',
     ownerUserId: 'user_003',
     escortLimit: 1,
-    guestLimit: 120
+    guestLimit: 120,
+    guests: []
   },
   {
     id: uuidv4(),
@@ -270,7 +330,8 @@ export const mockEvents: Event[] = [
     ownerName: 'Alexandra Lee',
     ownerUserId: 'user_004',
     escortLimit: 0,
-    guestLimit: 50
+    guestLimit: 50,
+    guests: []
   },
   {
     id: uuidv4(),
@@ -286,7 +347,8 @@ export const mockEvents: Event[] = [
     ownerName: 'Catherine Anderson',
     ownerUserId: 'user_006',
     escortLimit: 2,
-    guestLimit: 60
+    guestLimit: 60,
+    guests: []
   },
   {
     id: uuidv4(),
@@ -302,7 +364,8 @@ export const mockEvents: Event[] = [
     ownerName: 'Michael Christmas',
     ownerUserId: 'user_008',
     escortLimit: 2,
-    guestLimit: 250
+    guestLimit: 250,
+    guests: []
   },
   {
     id: uuidv4(),
@@ -318,7 +381,8 @@ export const mockEvents: Event[] = [
     ownerName: 'Rachel Planning',
     ownerUserId: 'user_001',
     escortLimit: 0,
-    guestLimit: 20
+    guestLimit: 20,
+    guests: []
   },
   {
     id: uuidv4(),
@@ -334,7 +398,8 @@ export const mockEvents: Event[] = [
     ownerName: 'Party Master',
     ownerUserId: 'user_002',
     escortLimit: 3,
-    guestLimit: 500
+    guestLimit: 500,
+    guests: []
   }
 ];
 

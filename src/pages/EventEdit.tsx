@@ -36,7 +36,8 @@ const EventEdit = () => {
     ownerName: '',
     ownerUserId: '',
     escortLimit: 0,
-    guestLimit: 0
+    guestLimit: 0,
+    guests: []
   });
 
   const [emailInput, setEmailInput] = useState('');

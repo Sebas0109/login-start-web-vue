@@ -9,7 +9,8 @@ import {
   EventGroup,
   GuestType,
   Addon,
-  User
+  User,
+  Guest
 } from '@/data/mockData';
 
 export const useMockData = () => {
@@ -69,6 +70,27 @@ export const useMockData = () => {
     setUsers(prev => prev.filter(user => user.id !== id));
   };
 
+  const updateGuest = (eventId: string, guestId: string, updatedGuest: Partial<Guest>) => {
+    setEvents(prev => prev.map(event => 
+      event.id === eventId 
+        ? {
+            ...event, 
+            guests: event.guests.map(guest => 
+              guest.id === guestId ? { ...guest, ...updatedGuest } : guest
+            )
+          }
+        : event
+    ));
+  };
+
+  const deleteGuest = (eventId: string, guestId: string) => {
+    setEvents(prev => prev.map(event => 
+      event.id === eventId 
+        ? { ...event, guests: event.guests.filter(guest => guest.id !== guestId) }
+        : event
+    ));
+  };
+
   return {
     events,
     eventGroups,
@@ -84,6 +106,8 @@ export const useMockData = () => {
     updateAddon,
     deleteAddon,
     updateUser,
-    deleteUser
+    deleteUser,
+    updateGuest,
+    deleteGuest
   };
 };
