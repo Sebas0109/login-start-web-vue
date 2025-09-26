@@ -27,6 +27,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   searchPlaceholder?: string;
   onGlobalFilterChange?: (value: string) => void;
+  actionButton?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -34,6 +35,7 @@ export function DataTable<TData, TValue>({
   data,
   searchPlaceholder = "Buscar...",
   onGlobalFilterChange,
+  actionButton,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -69,15 +71,22 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      {/* Search Bar */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder={searchPlaceholder}
-          value={globalFilter}
-          onChange={(e) => handleGlobalFilterChange(e.target.value)}
-          className="pl-10"
-        />
+      {/* Search Bar and Action Button */}
+      <div className="flex items-center justify-between">
+        <div className="relative max-w-sm">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder={searchPlaceholder}
+            value={globalFilter}
+            onChange={(e) => handleGlobalFilterChange(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        {actionButton && (
+          <div>
+            {actionButton}
+          </div>
+        )}
       </div>
 
       {/* Table */}

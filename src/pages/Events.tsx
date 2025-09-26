@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
-import { Eye, Edit, Trash2 } from 'lucide-react';
+import { Eye, Edit, Trash2, Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -236,6 +236,17 @@ const Events = () => {
               columns={columns}
               data={events}
               searchPlaceholder="Buscar..."
+              actionButton={
+                currentRole === 'ADMIN' ? (
+                  <Button 
+                    onClick={() => navigate('/events/new/edit')}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Agregar Evento
+                  </Button>
+                ) : undefined
+              }
             />
           </CardContent>
         </Card>

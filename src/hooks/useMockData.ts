@@ -20,6 +20,10 @@ export const useMockData = () => {
   const [addons, setAddons] = useState<Addon[]>(mockAddons);
   const [users, setUsers] = useState<User[]>(mockUsers);
 
+  const addEvent = (newEvent: Event) => {
+    setEvents(prev => [...prev, newEvent]);
+  };
+
   const updateEvent = (id: string, updatedEvent: Partial<Event>) => {
     setEvents(prev => prev.map(event => 
       event.id === id ? { ...event, ...updatedEvent } : event
@@ -97,6 +101,7 @@ export const useMockData = () => {
     guestTypes,
     addons,
     users,
+    addEvent,
     updateEvent,
     deleteEvent,
     updateEventGroup,

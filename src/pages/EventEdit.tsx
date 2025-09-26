@@ -20,7 +20,7 @@ const EventEdit = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { events, eventGroups, guestTypes, addons, users, updateEvent } = useMockData();
+  const { events, eventGroups, guestTypes, addons, users, addEvent, updateEvent } = useMockData();
 
   const [formData, setFormData] = useState<Event>({
     id: '',
@@ -46,7 +46,7 @@ const EventEdit = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (id) {
+    if (id && id !== 'new') {
       const event = events.find(e => e.id === id);
       if (event) {
         setFormData(event);
@@ -54,6 +54,26 @@ const EventEdit = () => {
       } else {
         navigate('/events');
       }
+    } else if (id === 'new') {
+      // Reset form for new event
+      setFormData({
+        id: '',
+        date: '',
+        time: '',
+        guestLimit: 0,
+        escortLimit: 0,
+        ownerEmails: [],
+        name: '',
+        package: 'classic',
+        eventGroup: '',
+        guestType: '',
+        addons: [],
+        ownerName: '',
+        ownerUserId: '',
+        slug: '',
+        guests: []
+      });
+      setSelectedDate(undefined);
     }
   }, [id, events, navigate]);
 
@@ -123,11 +143,22 @@ const EventEdit = () => {
   const handleSave = () => {
     if (!validateForm()) return;
 
-    updateEvent(formData.id, formData);
-    toast({
-      title: 'Éxito',
-      description: 'Evento actualizado exitosamente',
-    });
+    if (id === 'new') {
+      // Generate a new ID for the event
+      const newId = `event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const newEvent = { ...formData, id: newId };
+      addEvent(newEvent);
+      toast({
+        title: 'Éxito',
+        description: 'Evento creado exitosamente',
+      });
+    } else {
+      updateEvent(formData.id, formData);
+      toast({
+        title: 'Éxito',
+        description: 'Evento actualizado exitosamente',
+      });
+    }
     navigate('/events');
   };
 
@@ -150,7 +181,7 @@ const EventEdit = () => {
     <div className="container mx-auto py-6 space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Editar Evento</CardTitle>
+          <CardTitle>{id === 'new' ? 'Crear Evento' : 'Editar Evento'}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* UUID - Read-only */}
