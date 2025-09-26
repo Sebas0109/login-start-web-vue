@@ -83,7 +83,7 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
               <img 
                 src="/src/assets/logo.png" 
                 alt="Company Logo" 
-                className="h-8 w-auto"
+                className="h-10 w-auto"
               />
             </Link>
           </div>
