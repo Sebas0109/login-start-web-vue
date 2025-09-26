@@ -70,6 +70,13 @@ const Events = () => {
         ),
       },
       {
+        accessorKey: 'time',
+        header: 'Time',
+        cell: ({ row }) => (
+          <span className="font-medium">{row.getValue('time')}</span>
+        ),
+      },
+      {
         accessorKey: 'name',
         header: 'Event Name',
         cell: ({ row }) => (

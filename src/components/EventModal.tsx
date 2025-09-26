@@ -80,7 +80,7 @@ const EventModal: React.FC<EventModalProps> = ({ event, isOpen, onClose }) => {
             <div>
               <h3 className="text-lg font-medium text-foreground mb-2">{event.name}</h3>
               <p className="text-sm text-muted-foreground">
-                {format(new Date(event.date), 'EEEE, MMMM d, yyyy')}
+                {format(new Date(event.date), 'EEEE, MMMM d, yyyy')} at {event.time}
               </p>
             </div>
 
