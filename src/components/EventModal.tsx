@@ -84,10 +84,12 @@ const EventModal: React.FC<EventModalProps> = ({ event, isOpen, onClose }) => {
               </p>
             </div>
 
-            <div>
-              <p className="text-sm font-medium text-foreground mb-1">Cliente</p>
-              <p className="text-sm text-muted-foreground">{event.ownerName}</p>
-            </div>
+            {currentRole === 'ADMIN' && (
+              <div>
+                <p className="text-sm font-medium text-foreground mb-1">Cliente</p>
+                <p className="text-sm text-muted-foreground">{event.ownerName}</p>
+              </div>
+            )}
 
             <div className="flex items-center gap-2">
               <Badge className={getPackageBadgeColor(event.package)}>
