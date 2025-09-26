@@ -34,7 +34,7 @@ const ForgotPassword = () => {
       <div className="absolute inset-0 bg-gradient-primary opacity-20" />
       
       {/* Forgot Password Card */}
-      <Card className="w-full max-w-md mx-4 relative z-10 bg-gradient-card backdrop-blur-lg border-primary/20 shadow-elegant">
+      <Card className="w-full max-w-lg mx-4 relative z-10 bg-gradient-card backdrop-blur-lg border-primary/20 shadow-elegant">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
             Restablecer contraseña
