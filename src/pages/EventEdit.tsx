@@ -66,17 +66,17 @@ const EventEdit = () => {
     const trimmedEmail = emailInput.trim();
     
     if (!trimmedEmail) {
-      setEmailError('Email is required');
+      setEmailError('El correo es requerido');
       return;
     }
 
     if (!validateEmail(trimmedEmail)) {
-      setEmailError('Invalid email format');
+      setEmailError('Formato de correo inválido');
       return;
     }
 
     if (formData.ownerEmails.includes(trimmedEmail)) {
-      setEmailError('Email already added');
+      setEmailError('Correo ya agregado');
       return;
     }
 
@@ -107,14 +107,14 @@ const EventEdit = () => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name.trim()) newErrors.name = 'Event title is required';
-    if (!formData.slug.trim()) newErrors.slug = 'Slug is required';
-    if (!formData.date) newErrors.date = 'Date is required';
-    if (!formData.package) newErrors.package = 'Package is required';
-    if (!formData.eventGroup) newErrors.eventGroup = 'Event group is required';
-    if (!formData.ownerUserId) newErrors.ownerUserId = 'Owner is required';
-    if (formData.escortLimit < 0) newErrors.escortLimit = 'Escort limit must be 0 or greater';
-    if (formData.guestLimit < 0) newErrors.guestLimit = 'Guest limit must be 0 or greater';
+    if (!formData.name.trim()) newErrors.name = 'El título del evento es requerido';
+    if (!formData.slug.trim()) newErrors.slug = 'El slug es requerido';
+    if (!formData.date) newErrors.date = 'La fecha es requerida';
+    if (!formData.package) newErrors.package = 'El paquete es requerido';
+    if (!formData.eventGroup) newErrors.eventGroup = 'El tipo de evento es requerido';
+    if (!formData.ownerUserId) newErrors.ownerUserId = 'El propietario es requerido';
+    if (formData.escortLimit < 0) newErrors.escortLimit = 'El límite de acompañantes debe ser 0 o mayor';
+    if (formData.guestLimit < 0) newErrors.guestLimit = 'El límite de invitados debe ser 0 o mayor';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -125,8 +125,8 @@ const EventEdit = () => {
 
     updateEvent(formData.id, formData);
     toast({
-      title: 'Success',
-      description: 'Event updated successfully',
+      title: 'Éxito',
+      description: 'Evento actualizado exitosamente',
     });
     navigate('/events');
   };
@@ -150,7 +150,7 @@ const EventEdit = () => {
     <div className="container mx-auto py-6 space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Edit Event</CardTitle>
+          <CardTitle>Editar Evento</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* UUID - Read-only */}
@@ -166,7 +166,7 @@ const EventEdit = () => {
 
           {/* Event Title */}
           <div className="space-y-2">
-            <Label htmlFor="title">Title of the event *</Label>
+            <Label htmlFor="title">Título del evento *</Label>
             <Input
               id="title"
               value={formData.name}
@@ -192,7 +192,7 @@ const EventEdit = () => {
           {/* Date and Time */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Date *</Label>
+              <Label>Fecha *</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -204,7 +204,7 @@ const EventEdit = () => {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {selectedDate ? format(selectedDate, "PPP") : "Pick a date"}
+                    {selectedDate ? format(selectedDate, "PPP") : "Seleccionar fecha"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -226,7 +226,7 @@ const EventEdit = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="time">Time</Label>
+              <Label htmlFor="time">Hora</Label>
               <Input
                 id="time"
                 type="time"
@@ -239,7 +239,7 @@ const EventEdit = () => {
           {/* Limits */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="escortLimit">Escort limit</Label>
+              <Label htmlFor="escortLimit">Límite de acompañantes</Label>
               <Input
                 id="escortLimit"
                 type="number"
@@ -248,7 +248,7 @@ const EventEdit = () => {
                 onChange={(e) => setFormData(prev => ({ ...prev, escortLimit: parseInt(e.target.value) || 0 }))}
                 onBlur={() => {
                   if (formData.escortLimit < 0) {
-                    setErrors(prev => ({ ...prev, escortLimit: 'Must be 0 or greater' }));
+                    setErrors(prev => ({ ...prev, escortLimit: 'Debe ser 0 o mayor' }));
                   } else {
                     setErrors(prev => ({ ...prev, escortLimit: '' }));
                   }
@@ -259,7 +259,7 @@ const EventEdit = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="guestLimit">Limit guests</Label>
+              <Label htmlFor="guestLimit">Límite de invitados</Label>
               <Input
                 id="guestLimit"
                 type="number"
@@ -268,7 +268,7 @@ const EventEdit = () => {
                 onChange={(e) => setFormData(prev => ({ ...prev, guestLimit: parseInt(e.target.value) || 0 }))}
                 onBlur={() => {
                   if (formData.guestLimit < 0) {
-                    setErrors(prev => ({ ...prev, guestLimit: 'Must be 0 or greater' }));
+                    setErrors(prev => ({ ...prev, guestLimit: 'Debe ser 0 o mayor' }));
                   } else {
                     setErrors(prev => ({ ...prev, guestLimit: '' }));
                   }
@@ -281,12 +281,12 @@ const EventEdit = () => {
 
           {/* Emails */}
           <div className="space-y-2">
-            <Label htmlFor="emailInput">Mails</Label>
+            <Label htmlFor="emailInput">Correos</Label>
             <div className="flex gap-2">
               <Input
                 id="emailInput"
                 type="email"
-                placeholder="Enter email address"
+                placeholder="Ingresa dirección de correo"
                 value={emailInput}
                 onChange={(e) => {
                   setEmailInput(e.target.value);
@@ -302,7 +302,7 @@ const EventEdit = () => {
               />
               <Button onClick={addEmail} size="sm">
                 <Plus className="h-4 w-4" />
-                Add
+                Agregar
               </Button>
             </div>
             {emailError && <p className="text-sm text-destructive">{emailError}</p>}
@@ -324,7 +324,7 @@ const EventEdit = () => {
 
           {/* Package */}
           <div className="space-y-2">
-            <Label>Package *</Label>
+            <Label>Paquete *</Label>
             <Select 
               value={formData.package} 
               onValueChange={(value: 'classic' | 'premium' | 'silver') => 
@@ -332,12 +332,12 @@ const EventEdit = () => {
               }
             >
               <SelectTrigger className={errors.package ? 'border-destructive' : ''}>
-                <SelectValue placeholder="Select package" />
+                <SelectValue placeholder="Seleccionar paquete" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="classic">Classic</SelectItem>
+                <SelectItem value="classic">Clásico</SelectItem>
                 <SelectItem value="premium">Premium</SelectItem>
-                <SelectItem value="silver">Silver</SelectItem>
+                <SelectItem value="silver">Plata</SelectItem>
               </SelectContent>
             </Select>
             {errors.package && <p className="text-sm text-destructive">{errors.package}</p>}
@@ -345,13 +345,13 @@ const EventEdit = () => {
 
           {/* Event Group */}
           <div className="space-y-2">
-            <Label>Event group *</Label>
+            <Label>Tipo de evento *</Label>
             <Select 
               value={formData.eventGroup} 
               onValueChange={(value) => setFormData(prev => ({ ...prev, eventGroup: value }))}
             >
               <SelectTrigger className={errors.eventGroup ? 'border-destructive' : ''}>
-                <SelectValue placeholder="Select event group" />
+                <SelectValue placeholder="Seleccionar tipo de evento" />
               </SelectTrigger>
               <SelectContent>
                 {eventGroups.map((group) => (
@@ -366,13 +366,13 @@ const EventEdit = () => {
 
           {/* Guest Type */}
           <div className="space-y-2">
-            <Label>Guest type</Label>
+            <Label>Tipo de invitado</Label>
             <Select 
               value={formData.guestType} 
               onValueChange={(value) => setFormData(prev => ({ ...prev, guestType: value }))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select guest type" />
+                <SelectValue placeholder="Seleccionar tipo de invitado" />
               </SelectTrigger>
               <SelectContent>
                 {guestTypes.map((type) => (
@@ -386,13 +386,13 @@ const EventEdit = () => {
 
           {/* Owner */}
           <div className="space-y-2">
-            <Label>Owner *</Label>
+            <Label>Propietario *</Label>
             <Select 
               value={formData.ownerUserId} 
               onValueChange={handleOwnerChange}
             >
               <SelectTrigger className={errors.ownerUserId ? 'border-destructive' : ''}>
-                <SelectValue placeholder="Select owner" />
+                <SelectValue placeholder="Seleccionar propietario" />
               </SelectTrigger>
               <SelectContent>
                 {users.map((user) => (
@@ -407,7 +407,7 @@ const EventEdit = () => {
 
           {/* Addons */}
           <div className="space-y-2">
-            <Label>Addons</Label>
+            <Label>Extras</Label>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
               {addons.map((addon) => (
                 <div
@@ -454,10 +454,10 @@ const EventEdit = () => {
           {/* Actions */}
           <div className="flex gap-4 pt-4">
             <Button onClick={handleSave} className="flex-1">
-              Save
+              Guardar
             </Button>
             <Button onClick={handleCancel} variant="outline" className="flex-1">
-              Cancel
+              Cancelar
             </Button>
           </div>
         </CardContent>

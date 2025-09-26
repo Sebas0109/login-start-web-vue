@@ -107,7 +107,7 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>
-            {isViewMode ? 'Guest Details' : isAdding ? 'Add Guest' : 'Update Guest'}
+            {isViewMode ? 'Detalles del Invitado' : isAdding ? 'Agregar Invitado' : 'Actualizar Invitado'}
           </DialogTitle>
         </DialogHeader>
 
@@ -116,7 +116,7 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">
-                Name *
+                Nombre *
               </Label>
               <Input
                 id="name"
@@ -129,7 +129,7 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
 
             <div className="space-y-2">
               <Label htmlFor="paternalSurname">
-                Paternal Surname *
+                Apellido Paterno *
               </Label>
               <Input
                 id="paternalSurname"
@@ -144,7 +144,7 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="maternalSurname">
-                Maternal Surname
+                Apellido Materno
               </Label>
               <Input
                 id="maternalSurname"
@@ -156,13 +156,13 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
 
             <div className="space-y-2">
               <Label htmlFor="phone">
-                Phone Number *
+                Telefono *
               </Label>
               <Input
                 id="phone"
                 value={formData.phone}
                 onChange={isViewMode ? undefined : (e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder={isViewMode ? undefined : "e.g., 50123456"}
+                placeholder={isViewMode ? undefined : "Ingresa el número sin LADA"}
                 required={!isViewMode}
                 disabled={isViewMode}
               />
@@ -172,7 +172,7 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="stateCode">
-                State Code *
+                Código de área (LADA) *
               </Label>
               {isViewMode ? (
                 <Input value={formData.stateCode} disabled />
@@ -194,7 +194,7 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
 
             <div className="space-y-2">
               <Label htmlFor="assistance">
-                Assistance
+                Asistencia
               </Label>
               {isViewMode ? (
                 <div className="h-10 flex items-center">
@@ -214,10 +214,10 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Pending">Pending</SelectItem>
-                    <SelectItem value="Confirmed">Confirmed</SelectItem>
-                    <SelectItem value="Cancelled">Cancelled</SelectItem>
-                    <SelectItem value="Not coming">Not coming</SelectItem>
+                    <SelectItem value="Pending">Pendiente</SelectItem>
+                    <SelectItem value="Confirmed">Confirmado</SelectItem>
+                    <SelectItem value="Cancelled">Cancelado</SelectItem>
+                    <SelectItem value="Not coming">No asistirá</SelectItem>
                   </SelectContent>
                 </Select>
               )}
@@ -227,7 +227,7 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="escortCount">
-                Escorts
+                Acompañantes
               </Label>
               <Input
                 id="escortCount"
@@ -241,11 +241,11 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
 
             <div className="space-y-2">
               <Label htmlFor="confirmationEmailSent">
-                Confirmation Mail Sent
+                Confirmacion
               </Label>
               {isViewMode ? (
                 <div className="h-10 flex items-center">
-                  <span className="text-sm">{formData.confirmationEmailSent ? 'Yes' : 'No'}</span>
+                  <span className="text-sm">{formData.confirmationEmailSent ? 'Sí' : 'No'}</span>
                 </div>
               ) : (
                 <div className="flex items-center space-x-2 h-10">
@@ -254,7 +254,7 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
                     checked={formData.confirmationEmailSent}
                     onCheckedChange={(checked) => setFormData({ ...formData, confirmationEmailSent: !!checked })}
                   />
-                  <span className="text-sm text-muted-foreground">Email has been sent</span>
+                  <span className="text-sm text-muted-foreground">Correo de confirmación enviado</span>
                 </div>
               )}
             </div>
@@ -262,13 +262,13 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
 
           <div className="space-y-2">
             <Label htmlFor="personalMessage">
-              Personal Message
+              Mensaje personal
             </Label>
             <Textarea
               id="personalMessage"
               value={formData.personalMessage}
               onChange={isViewMode ? undefined : (e) => setFormData({ ...formData, personalMessage: e.target.value })}
-              placeholder={isViewMode ? undefined : "Optional personal message for the guest..."}
+              placeholder={isViewMode ? undefined : "Mensaje personal opcional para el invitado..."}
               className={isViewMode ? "min-h-[80px] resize-none" : "min-h-[80px] resize-y"}
               disabled={isViewMode}
             />
@@ -278,15 +278,15 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
         <div className="flex justify-end gap-3">
           {isViewMode ? (
             <Button variant="outline" onClick={onClose}>
-              Close
+              Cerrar
             </Button>
           ) : (
             <>
               <Button variant="outline" onClick={handleCancel}>
-                Cancel
+                Cancelar
               </Button>
               <Button onClick={handleSave}>
-                Save
+                Guardar
               </Button>
             </>
           )}

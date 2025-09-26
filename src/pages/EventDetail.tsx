@@ -35,10 +35,10 @@ const EventDetail = () => {
         <div className="max-w-7xl mx-auto">
           <Card className="bg-gradient-card backdrop-blur-lg border-border/50 shadow-elegant">
             <CardContent className="p-6">
-              <h1 className="text-2xl font-bold text-foreground mb-4">Event Not Found</h1>
-              <p className="text-muted-foreground">The event you're looking for doesn't exist.</p>
+              <h1 className="text-2xl font-bold text-foreground mb-4">Evento No Encontrado</h1>
+              <p className="text-muted-foreground">El evento que buscas no existe.</p>
               <Button onClick={() => navigate('/events')} className="mt-4">
-                Back to Events
+                Volver a Eventos
               </Button>
             </CardContent>
           </Card>
@@ -105,8 +105,8 @@ const EventDetail = () => {
     if (guestToDelete && id) {
       deleteGuest(id, guestToDelete.id);
       toast({
-        title: "Success",
-        description: "Guest deleted successfully"
+        title: "Éxito",
+        description: "Invitado eliminado exitosamente"
       });
       setGuestToDelete(null);
     }
@@ -136,14 +136,14 @@ const EventDetail = () => {
       updateEvent(event.id, { guests: updatedEvent.guests });
       
       toast({
-        title: "Guest added",
-        description: "Guest has been successfully added.",
+        title: "Invitado agregado",
+        description: "El invitado ha sido agregado exitosamente.",
       });
     } else if (selectedGuest && id) {
       updateGuest(id, selectedGuest.id, guestData);
       toast({
-        title: "Guest updated",
-        description: "Guest information has been successfully updated.",
+        title: "Invitado actualizado",
+        description: "La información del invitado ha sido actualizada exitosamente.",
       });
     }
     setIsGuestModalOpen(false);
@@ -154,7 +154,7 @@ const EventDetail = () => {
   const columns: ColumnDef<Guest>[] = [
     {
       accessorKey: 'id',
-      header: 'Guest Id',
+      header: 'ID',
       cell: ({ row }) => (
         <div 
           className="font-mono text-xs truncate max-w-[100px] cursor-help" 
@@ -166,9 +166,15 @@ const EventDetail = () => {
     },
     {
       accessorKey: 'assistance',
-      header: 'Assistance',
+      header: 'Asistencia',
       cell: ({ row }) => {
         const assistance = row.getValue('assistance') as string;
+        const spanishAssistance = {
+          'Confirmed': 'Confirmado',
+          'Cancelled': 'Cancelado', 
+          'Pending': 'Pendiente',
+          'Not coming': 'No asistirá'
+        }[assistance] || assistance;
         return (
           <Badge 
             variant={
@@ -177,26 +183,26 @@ const EventDetail = () => {
               'secondary'
             }
           >
-            {assistance}
+            {spanishAssistance}
           </Badge>
         );
       },
     },
     {
       accessorKey: 'name',
-      header: 'Name',
+      header: 'Nombre',
     },
     {
       accessorKey: 'paternalSurname',
-      header: 'Paternal Surname',
+      header: 'Apellido Paterno',
     },
     {
       accessorKey: 'maternalSurname',
-      header: 'Maternal Surname',
+      header: 'Apellido Materno',
     },
     {
       accessorKey: 'phone',
-      header: 'Phone',
+      header: 'Telefono',
       cell: ({ row }) => {
         const guest = row.original;
         return `${guest.stateCode} ${guest.phone}`;
@@ -204,18 +210,18 @@ const EventDetail = () => {
     },
     {
       accessorKey: 'escortCount',
-      header: 'Number of Escorts',
+      header: 'Escorts',
     },
     {
       accessorKey: 'confirmationEmailSent',
-      header: 'Confirmation Mail Sent',
+      header: 'Confirmacion',
       cell: ({ row }) => (
-        <span>{row.getValue('confirmationEmailSent') ? 'Yes' : 'No'}</span>
+        <span>{row.getValue('confirmationEmailSent') ? 'Sí' : 'No'}</span>
       ),
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: 'Acciones',
       cell: ({ row }) => {
         const guest = row.original;
         
@@ -223,22 +229,22 @@ const EventDetail = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">Abrir menú</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => handleViewGuest(guest.id)}>
-                View
+                Ver
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleUpdateGuest(guest)}>
-                Update
+                Actualizar
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="text-destructive"
                 onClick={() => handleDeleteGuest(guest)}
               >
-                Delete
+                Borrar
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -249,22 +255,22 @@ const EventDetail = () => {
 
   const kpiCards = [
     {
-      title: "Total Guests Invited",
+      title: "Total Invitados",
       value: kpis.totalInvited,
       icon: Users
     },
     {
-      title: "Total Guests Confirmed",
+      title: "Total Confirmados",
       value: kpis.totalConfirmed,
       icon: UserCheck
     },
     {
-      title: "Total Guests Cancelled",
+      title: "Total Cancelados",
       value: kpis.totalCancelled,
       icon: UserX
     },
     {
-      title: "Total Guests No Response",
+      title: "Total Sin Respuesta",
       value: kpis.totalNoResponse,
       icon: UserMinus
     }
@@ -300,9 +306,9 @@ const EventDetail = () => {
           <CardContent className="p-4">
             <div className="flex flex-wrap gap-4 text-sm">
               <span><strong>Slug:</strong> {event.slug}</span>
-              <span><strong>Date:</strong> {format(new Date(event.date), 'yyyy-MM-dd')}</span>
-              <span><strong>Package:</strong> {event.package}</span>
-              <span><strong>Event Group:</strong> {event.eventGroup}</span>
+              <span><strong>Fecha:</strong> {format(new Date(event.date), 'yyyy-MM-dd')}</span>
+              <span><strong>Paquete:</strong> {event.package}</span>
+              <span><strong>Tipo de Evento:</strong> {event.eventGroup}</span>
             </div>
           </CardContent>
         </Card>
@@ -311,9 +317,9 @@ const EventDetail = () => {
         <Card className="bg-gradient-card backdrop-blur-lg border-border/50 shadow-elegant">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-foreground">Guests</CardTitle>
+              <CardTitle className="text-foreground">Invitados</CardTitle>
               <Button onClick={handleAddGuest}>
-                Add Guest
+                Agregar Invitado
               </Button>
             </div>
           </CardHeader>
@@ -321,7 +327,7 @@ const EventDetail = () => {
             <DataTable 
               columns={columns} 
               data={filteredGuests}
-              searchPlaceholder="Search guests..."
+              searchPlaceholder="Buscar..."
             />
           </CardContent>
         </Card>
@@ -345,16 +351,16 @@ const EventDetail = () => {
         <AlertDialog open={!!guestToDelete} onOpenChange={() => setGuestToDelete(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete Guest</AlertDialogTitle>
+              <AlertDialogTitle>Eliminar Invitado</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete {guestToDelete?.name} {guestToDelete?.paternalSurname}? 
-                This action cannot be undone.
+                ¿Estás seguro de que quieres eliminar a {guestToDelete?.name} {guestToDelete?.paternalSurname}? 
+                Esta acción no se puede deshacer.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
               <AlertDialogAction onClick={confirmDeleteGuest} className="bg-destructive hover:bg-destructive/90">
-                Delete
+                Eliminar
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
