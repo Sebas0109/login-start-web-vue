@@ -4,6 +4,7 @@ import { Bell, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import logo from "@/assets/logo.png";
 
 type Role = "ADMIN" | "CLIENT";
 
@@ -79,8 +80,12 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
         <div className="flex justify-between items-center h-16">
           {/* Left: Logo */}
           <div className="flex items-center">
-            <Link to="/home" className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              AppName
+            <Link to="/home" className="flex items-center">
+              <img 
+                src={logo} 
+                alt="Company Logo" 
+                className="h-8 w-auto"
+              />
             </Link>
           </div>
 
