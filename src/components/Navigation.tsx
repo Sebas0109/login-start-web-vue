@@ -104,7 +104,7 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
           {/* Right: Notifications and Role Switcher */}
           <div className="flex items-center space-x-4">
             {/* Dev Role Switcher */}
-            <div className="hidden lg:flex items-center space-x-2 px-3 py-1 rounded-md bg-secondary/30 border border-border/30">
+            <div className="flex items-center space-x-2 px-3 py-1 rounded-md bg-secondary/30 border border-border/30">
               <span className="text-xs text-muted-foreground">Role:</span>
               <select
                 value={currentRole}
