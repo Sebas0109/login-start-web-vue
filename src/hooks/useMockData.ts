@@ -64,6 +64,18 @@ export const useMockData = () => {
     setAddons(prev => prev.filter(addon => addon.id !== id));
   };
 
+  const addEventGroup = (newGroup: EventGroup) => {
+    setEventGroups(prev => [...prev, newGroup]);
+  };
+
+  const addGuestType = (newType: GuestType) => {
+    setGuestTypes(prev => [...prev, newType]);
+  };
+
+  const addAddon = (newAddon: Addon) => {
+    setAddons(prev => [...prev, newAddon]);
+  };
+
   const updateUser = (id: string, updatedUser: Partial<User>) => {
     setUsers(prev => prev.map(user => 
       user.id === id ? { ...user, ...updatedUser } : user
@@ -110,6 +122,9 @@ export const useMockData = () => {
     deleteGuestType,
     updateAddon,
     deleteAddon,
+    addEventGroup,
+    addGuestType,
+    addAddon,
     updateUser,
     deleteUser,
     updateGuest,

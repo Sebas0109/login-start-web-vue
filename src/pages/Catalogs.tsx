@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -34,6 +34,8 @@ import { EventGroup, GuestType, Addon } from '@/data/mockData';
 type CatalogType = 'eventGroups' | 'guestTypes' | 'addons';
 
 const Catalogs = () => {
+  // Mock user role for demo - in real app this would come from auth context
+  const userRole = 'ADMIN'; // This should come from your auth context
   const { 
     eventGroups, 
     guestTypes, 
@@ -43,31 +45,59 @@ const Catalogs = () => {
     updateGuestType, 
     deleteGuestType, 
     updateAddon, 
-    deleteAddon 
+    deleteAddon,
+    addEventGroup,
+    addGuestType,
+    addAddon
   } = useMockData();
   
   const [activeTab, setActiveTab] = useState<CatalogType>('eventGroups');
   const [editingItem, setEditingItem] = useState<any>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
 
   const handleEdit = (item: any) => {
     setEditingItem({ ...item });
+    setIsAdding(false);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleAdd = () => {
+    const newItem = activeTab === 'eventGroups' 
+      ? { id: `eg_${Date.now()}`, name: '' }
+      : activeTab === 'guestTypes' 
+      ? { id: `gt_${Date.now()}`, name: '' }
+      : { id: `ad_${Date.now()}`, name: '', description: '', image: '' };
+    
+    setEditingItem(newItem);
+    setIsAdding(true);
     setIsEditDialogOpen(true);
   };
 
   const handleSave = () => {
     if (!editingItem) return;
     
-    if (activeTab === 'eventGroups') {
-      updateEventGroup(editingItem.id, editingItem);
-    } else if (activeTab === 'guestTypes') {
-      updateGuestType(editingItem.id, editingItem);
-    } else if (activeTab === 'addons') {
-      updateAddon(editingItem.id, editingItem);
+    if (isAdding) {
+      if (activeTab === 'eventGroups') {
+        addEventGroup(editingItem);
+      } else if (activeTab === 'guestTypes') {
+        addGuestType(editingItem);
+      } else if (activeTab === 'addons') {
+        addAddon(editingItem);
+      }
+    } else {
+      if (activeTab === 'eventGroups') {
+        updateEventGroup(editingItem.id, editingItem);
+      } else if (activeTab === 'guestTypes') {
+        updateGuestType(editingItem.id, editingItem);
+      } else if (activeTab === 'addons') {
+        updateAddon(editingItem.id, editingItem);
+      }
     }
     
     setIsEditDialogOpen(false);
     setEditingItem(null);
+    setIsAdding(false);
   };
 
   const handleDelete = (id: string) => {
@@ -290,11 +320,11 @@ const Catalogs = () => {
         <DialogContent className="bg-gradient-card backdrop-blur-lg border-border/50">
           <DialogHeader>
             <DialogTitle>
-              Editar {activeTab === 'eventGroups' ? 'Tipo de Evento' : 
+              {isAdding ? 'Agregar' : 'Editar'} {activeTab === 'eventGroups' ? 'Tipo de Evento' : 
                     activeTab === 'guestTypes' ? 'Tipo de Invitado' : 'Extra'}
             </DialogTitle>
             <DialogDescription>
-              Actualiza los detalles a continuación y haz clic en guardar cuando termines.
+              {isAdding ? 'Completa los detalles a continuación y haz clic en guardar para crear.' : 'Actualiza los detalles a continuación y haz clic en guardar cuando termines.'}
             </DialogDescription>
           </DialogHeader>
           
@@ -338,7 +368,9 @@ const Catalogs = () => {
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSave}>Guardar cambios</Button>
+            <Button onClick={handleSave}>
+              {isAdding ? 'Crear' : 'Guardar cambios'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -361,6 +393,15 @@ const Catalogs = () => {
               </TabsList>
               
               <TabsContent value="eventGroups" className="mt-6">
+                <div className="flex justify-between items-center mb-4">
+                  <div></div>
+                  {userRole === 'ADMIN' && (
+                    <Button onClick={handleAdd} className="bg-primary hover:bg-primary/90">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Agregar Tipo de Evento
+                    </Button>
+                  )}
+                </div>
                 <DataTable
                   columns={eventGroupColumns}
                   data={eventGroups}
@@ -369,6 +410,15 @@ const Catalogs = () => {
               </TabsContent>
               
               <TabsContent value="guestTypes" className="mt-6">
+                <div className="flex justify-between items-center mb-4">
+                  <div></div>
+                  {userRole === 'ADMIN' && (
+                    <Button onClick={handleAdd} className="bg-primary hover:bg-primary/90">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Agregar Tipo de Invitado
+                    </Button>
+                  )}
+                </div>
                 <DataTable
                   columns={guestTypeColumns}
                   data={guestTypes}
@@ -377,6 +427,15 @@ const Catalogs = () => {
               </TabsContent>
               
               <TabsContent value="addons" className="mt-6">
+                <div className="flex justify-between items-center mb-4">
+                  <div></div>
+                  {userRole === 'ADMIN' && (
+                    <Button onClick={handleAdd} className="bg-primary hover:bg-primary/90">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Agregar Extra
+                    </Button>
+                  )}
+                </div>
                 <DataTable
                   columns={addonColumns}
                   data={addons}
