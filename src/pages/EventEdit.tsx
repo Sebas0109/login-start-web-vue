@@ -27,6 +27,7 @@ const EventEdit = () => {
     date: '',
     time: '',
     name: '',
+    slug: '',
     ownerEmails: [],
     package: 'classic',
     eventGroup: '',
@@ -106,6 +107,7 @@ const EventEdit = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) newErrors.name = 'Event title is required';
+    if (!formData.slug.trim()) newErrors.slug = 'Slug is required';
     if (!formData.date) newErrors.date = 'Date is required';
     if (!formData.package) newErrors.package = 'Package is required';
     if (!formData.eventGroup) newErrors.eventGroup = 'Event group is required';
@@ -171,6 +173,19 @@ const EventEdit = () => {
               className={errors.name ? 'border-destructive' : ''}
             />
             {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+          </div>
+
+          {/* Slug */}
+          <div className="space-y-2">
+            <Label htmlFor="slug">Slug *</Label>
+            <Input
+              id="slug"
+              value={formData.slug}
+              onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
+              placeholder="e.g., mary_sweet_sixteen_party"
+              className={errors.slug ? 'border-destructive' : ''}
+            />
+            {errors.slug && <p className="text-sm text-destructive">{errors.slug}</p>}
           </div>
 
           {/* Date and Time */}
