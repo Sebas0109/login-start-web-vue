@@ -4,6 +4,7 @@ import { Bell, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import logo from "@/assets/logo.png";
 
 type Role = "ADMIN" | "CLIENT";
 
@@ -74,13 +75,24 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
   const isActivePath = (path: string) => location.pathname === path;
 
   return (
-    <nav className="sticky top-0 z-50 bg-gradient-card backdrop-blur-lg border-b border-border/50">
+    <nav className="sticky top-0 z-50 bg-neutral-900 border-b border-neutral-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Left: Logo */}
           <div className="flex items-center">
-            <Link to="/home" className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              AppName
+            <Link to="/home" className="flex items-center">
+              <img 
+                src={logo} 
+                alt="The Invitation Company" 
+                className="h-8 w-auto"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                }}
+              />
+              <span className="hidden text-xl font-bold text-white ml-2">
+                The Invitation Company
+              </span>
             </Link>
           </div>
 
@@ -92,8 +104,8 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
                 to={item.path}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-smooth ${
                   isActivePath(item.path)
-                    ? "bg-primary/10 text-primary border-b-2 border-primary"
-                    : "text-foreground hover:text-primary hover:bg-accent/30"
+                    ? "bg-primary text-white border-b-2 border-primary"
+                    : "text-white hover:text-primary hover:bg-white/10"
                 }`}
               >
                 {item.name}
@@ -104,12 +116,12 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
           {/* Right: Notifications and Role Switcher */}
           <div className="flex items-center space-x-4">
             {/* Dev Role Switcher */}
-            <div className="flex items-center space-x-2 px-3 py-1 rounded-md bg-secondary/30 border border-border/30">
-              <span className="text-xs text-muted-foreground">Role:</span>
+            <div className="flex items-center space-x-2 px-3 py-1 rounded-md bg-white/10 border border-white/20">
+              <span className="text-xs text-white/70">Role:</span>
               <select
                 value={currentRole}
                 onChange={(e) => onRoleChange(e.target.value as Role)}
-                className="text-xs bg-transparent border-none outline-none text-foreground"
+                className="text-xs bg-transparent border-none outline-none text-white"
               >
                 <option value="ADMIN">ADMIN</option>
                 <option value="CLIENT">CLIENT</option>
@@ -121,14 +133,14 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="relative p-2"
+                className="relative p-2 text-white hover:bg-white/10"
                 onClick={handleNotificationClick}
               >
                 <Bell className="h-5 w-5" />
                 {unreadCount > 0 && (
                   <Badge
-                    variant="destructive"
-                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs p-0"
+                    variant="default"
+                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs p-0 bg-primary text-white"
                   >
                     {unreadCount}
                   </Badge>
@@ -176,8 +188,8 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
                 to={item.path}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-smooth ${
                   isActivePath(item.path)
-                    ? "bg-primary/10 text-primary"
-                    : "text-foreground hover:text-primary hover:bg-accent/30"
+                    ? "bg-primary text-white"
+                    : "text-white hover:text-primary hover:bg-white/10"
                 }`}
               >
                 {item.name}

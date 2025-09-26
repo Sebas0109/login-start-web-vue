@@ -57,6 +57,15 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Brand colors for direct access
+        'neutral-900': 'hsl(var(--neutral-900))',
+        'neutral-700': 'hsl(var(--neutral-700))',
+        'neutral-500': 'hsl(var(--neutral-500))',
+        'neutral-300': 'hsl(var(--neutral-300))',
+        'neutral-0': 'hsl(var(--neutral-0))',
+        'primary-700': 'hsl(var(--primary-700))',
+        'primary-500': 'hsl(var(--primary-500))',
+        'accent-600': 'hsl(var(--accent-600))',
       },
       backgroundImage: {
         'gradient-primary': 'var(--gradient-primary)',
