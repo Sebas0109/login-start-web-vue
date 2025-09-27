@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Bell, ChevronDown, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +24,7 @@ interface NavigationProps {
 
 const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -82,6 +83,13 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
   };
 
   const isActivePath = (path: string) => location.pathname === path;
+
+  const handleLogout = () => {
+    // Delete JWT cookie
+    document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    // Redirect to login
+    navigate("/login");
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-gradient-card backdrop-blur-lg border-b border-border/50">
@@ -193,7 +201,10 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-foreground hover:bg-accent/20 cursor-pointer">
+                <DropdownMenuItem 
+                  className="text-foreground hover:bg-accent/20 cursor-pointer"
+                  onClick={handleLogout}
+                >
                   Cerrar Sesión
                 </DropdownMenuItem>
               </DropdownMenuContent>
