@@ -1,9 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Bell, ChevronDown } from "lucide-react";
+import { Bell, ChevronDown, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import logo from "@/assets/logo.png";
 
 type Role = "ADMIN" | "CLIENT";
@@ -106,7 +115,7 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
             ))}
           </div>
 
-          {/* Right: Notifications and Role Switcher */}
+          {/* Right: Notifications, Role Switcher and User Profile */}
           <div className="flex items-center space-x-4">
             {/* Dev Role Switcher */}
             <div className="flex items-center space-x-2 px-3 py-1 rounded-md bg-secondary/30 border border-border/30">
@@ -162,6 +171,33 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
                 </Card>
               )}
             </div>
+
+            {/* User Profile Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      <User className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-gradient-card backdrop-blur-lg border-border/50" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none text-foreground">Juan Pérez</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      juan.perez@ejemplo.com
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-foreground hover:bg-accent/20 cursor-pointer">
+                  Cerrar Sesión
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Mobile menu button */}
