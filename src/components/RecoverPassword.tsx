@@ -4,18 +4,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff, Lock } from "lucide-react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { authService } from "@/services/authService";
+import { useToast } from "@/hooks/use-toast";
 import loginBg from "@/assets/login-bg.jpg";
 
 const RecoverPassword = () => {
   const { recover_token } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ password?: string; confirmPassword?: string }>({});
+  const [success, setSuccess] = useState(false);
+  const [errors, setErrors] = useState<{ password?: string; confirmPassword?: string; general?: string }>({});
 
   const validatePassword = (pass: string) => {
     if (pass.length < 8) {
@@ -30,6 +34,7 @@ const RecoverPassword = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+    setSuccess(false);
 
     const passwordError = validatePassword(password);
     const confirmPasswordError = password !== confirmPassword ? "Las contraseñas no coinciden" : "";
@@ -42,14 +47,36 @@ const RecoverPassword = () => {
       return;
     }
 
+    if (!recover_token) {
+      setErrors({ general: "Token de recuperación inválido" });
+      return;
+    }
+
     setIsLoading(true);
-    // Simulate password reset process
-    setTimeout(() => {
+
+    try {
+      const message = await authService.recoverPassword(recover_token, password);
+      setSuccess(true);
+      toast({
+        title: "Contraseña restablecida",
+        description: message,
+      });
+      
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Error al restablecer contraseña";
+      setErrors({ general: errorMessage });
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: errorMessage,
+      });
+    } finally {
       setIsLoading(false);
-      console.log("Password reset with token:", recover_token);
-      // Redirect to login after successful reset
-      navigate("/login");
-    }, 2000);
+    }
   };
 
   return (
@@ -76,6 +103,18 @@ const RecoverPassword = () => {
         
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {success && (
+              <div className="p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md">
+                Contraseña restablecida exitosamente. Redirigiendo a inicio de sesión...
+              </div>
+            )}
+            
+            {errors.general && (
+              <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
+                {errors.general}
+              </div>
+            )}
+            
             <div className="space-y-2">
               <Label htmlFor="password" className="text-sm font-medium">
                 Nueva contraseña
@@ -88,6 +127,7 @@ const RecoverPassword = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={isLoading}
                   className="transition-smooth focus:shadow-glow focus:border-primary/50 bg-secondary/50 border-border/50 pr-10"
                 />
                 <button
@@ -115,6 +155,7 @@ const RecoverPassword = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
+                  disabled={isLoading}
                   className="transition-smooth focus:shadow-glow focus:border-primary/50 bg-secondary/50 border-border/50 pr-10"
                 />
                 <button
@@ -131,11 +172,11 @@ const RecoverPassword = () => {
             </div>
           </CardContent>
           
-          <CardFooter>
+          <CardFooter className="flex-col space-y-3">
             <Button
               type="submit"
               className="w-full bg-gradient-primary hover:shadow-glow transition-bounce disabled:opacity-50 text-primary-foreground font-semibold"
-              disabled={isLoading}
+              disabled={isLoading || success}
             >
               {isLoading ? (
                 <div className="flex items-center space-x-2">
@@ -149,6 +190,15 @@ const RecoverPassword = () => {
                 </div>
               )}
             </Button>
+            
+            {success && (
+              <Link 
+                to="/login" 
+                className="text-center text-primary hover:text-primary/80 transition-smooth font-medium text-sm"
+              >
+                Ir a inicio de sesión
+              </Link>
+            )}
           </CardFooter>
         </form>
       </Card>

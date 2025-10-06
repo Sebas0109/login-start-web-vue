@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
 
 type Role = "ADMIN" | "CLIENT";
@@ -25,6 +26,7 @@ interface NavigationProps {
 const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { clearAuth, profile, userId } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -85,11 +87,16 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
   const isActivePath = (path: string) => location.pathname === path;
 
   const handleLogout = () => {
-    // Delete JWT cookie
+    // Clear auth state
+    clearAuth();
+    // Delete JWT cookie (if any)
     document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     // Redirect to login
     navigate("/login");
   };
+
+  // Get user initials for avatar
+  const userInitials = profile ? profile.substring(0, 2).toUpperCase() : "U";
 
   return (
     <nav className="sticky top-0 z-50 bg-gradient-card backdrop-blur-lg border-b border-border/50">
@@ -186,7 +193,7 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
                     <AvatarFallback className="bg-primary/10 text-primary">
-                      <User className="h-4 w-4" />
+                      {userInitials}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -194,9 +201,9 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
               <DropdownMenuContent className="w-56 bg-gradient-card backdrop-blur-lg border-border/50" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none text-foreground">Juan Pérez</p>
+                    <p className="text-sm font-medium leading-none text-foreground">{profile || "Usuario"}</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      juan.perez@ejemplo.com
+                      ID: {userId || "N/A"}
                     </p>
                   </div>
                 </DropdownMenuLabel>

@@ -5,21 +5,41 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
+import { authService } from "@/services/authService";
+import { useToast } from "@/hooks/use-toast";
 import loginBg from "@/assets/login-bg.jpg";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setSuccess(false);
     setIsLoading(true);
-    // Simulate password reset process
-    setTimeout(() => {
+
+    try {
+      const message = await authService.forgotPassword(email);
+      setSuccess(true);
+      toast({
+        title: "Solicitud enviada",
+        description: message,
+      });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Error al solicitar restablecimiento";
+      setError(errorMessage);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: errorMessage,
+      });
+    } finally {
       setIsLoading(false);
-      console.log("Password reset requested for:", email);
-      // You can add success message or redirect logic here
-    }, 2000);
+    }
   };
 
   return (
@@ -46,6 +66,18 @@ const ForgotPassword = () => {
         
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {success && (
+              <div className="p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md">
+                Se ha enviado un correo a la dirección proporcionada
+              </div>
+            )}
+            
+            {error && (
+              <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
+                {error}
+              </div>
+            )}
+            
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">
                 Correo electrónico
@@ -57,6 +89,7 @@ const ForgotPassword = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isLoading}
                 className="transition-smooth focus:shadow-glow focus:border-primary/50 bg-secondary/50 border-border/50"
               />
             </div>

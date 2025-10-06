@@ -4,7 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff, LogIn } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { authService } from "@/services/authService";
+import { useToast } from "@/hooks/use-toast";
 import loginBg from "@/assets/login-bg.jpg";
 
 const Login = () => {
@@ -12,17 +15,47 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { setAuth, isAuthenticated } = useAuth();
+  const { toast } = useToast();
+
+  // Redirect if already authenticated
+  if (isAuthenticated) {
+    const from = (location.state as { from?: { pathname: string } })?.from?.pathname || "/events";
+    navigate(from, { replace: true });
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     setIsLoading(true);
-    // Simulate login process
-    setTimeout(() => {
+
+    try {
+      const authData = await authService.login(email, password);
+      setAuth(authData);
+      
+      toast({
+        title: "Inicio de sesión exitoso",
+        description: "Bienvenido de vuelta",
+      });
+
+      // Redirect to intended route or default to /events
+      const from = (location.state as { from?: { pathname: string } })?.from?.pathname || "/events";
+      navigate(from, { replace: true });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Error al iniciar sesión";
+      setError(errorMessage);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: errorMessage,
+      });
+    } finally {
       setIsLoading(false);
-      console.log("Login attempted with:", { email, password });
-      // Simulate successful login - redirect to home
-      window.location.href = "/events";
-    }, 2000);
+    }
   };
 
   return (
@@ -49,6 +82,12 @@ const Login = () => {
         
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {error && (
+              <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
+                {error}
+              </div>
+            )}
+            
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">
                 Correo electrónico
@@ -60,6 +99,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isLoading}
                 className="transition-smooth focus:shadow-glow focus:border-primary/50 bg-secondary/50 border-border/50"
               />
             </div>
@@ -76,6 +116,7 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={isLoading}
                   className="pr-10 transition-smooth focus:shadow-glow focus:border-primary/50 bg-secondary/50 border-border/50"
                 />
                 <Button
