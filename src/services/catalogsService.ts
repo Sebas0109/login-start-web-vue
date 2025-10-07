@@ -48,17 +48,17 @@ class CatalogsService {
 
   async getCatalogById(catalog: CatalogType, id: number): Promise<CatalogElement> {
     this.validateCatalog(catalog);
-    return await apiClient.get<CatalogElement>(`/api/catalogs/${catalog}/${id}`);
+    return await apiClient.get<CatalogElement>(`/api/catalogs/select/${catalog}/${id}`);
   }
 
   async updateCatalog(catalog: CatalogType, data: UpdateCatalogData): Promise<CatalogElement> {
     this.validateCatalog(catalog);
-    return await apiClient.put<CatalogElement>(`/api/catalogs/${catalog}`, data);
+    return await apiClient.put<CatalogElement>(`/api/catalogs/update/${catalog}`, data);
   }
 
   async deleteCatalog(catalog: CatalogType, id: number): Promise<string> {
     this.validateCatalog(catalog);
-    return await apiClient.delete<string>(`/api/catalogs/${catalog}?id=${id}`);
+    return await apiClient.delete<string>(`/api/catalogs/delete/${catalog}?id=${id}`);
   }
 }
 
