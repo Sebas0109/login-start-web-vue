@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Edit, Trash2, Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,39 +22,73 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { DataTable, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, MoreHorizontal } from '@/components/DataTable';
-import { useMockData } from '@/hooks/useMockData';
-import { EventGroup, GuestType, Addon } from '@/data/mockData';
+import { catalogsService } from '@/services/catalogsService';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import type { CatalogType, Addon, EventGroup, GuestType } from '@/types/catalog';
 
-type CatalogType = 'eventGroups' | 'guestTypes' | 'addons';
+type CatalogTab = 'eventGroup' | 'guestType' | 'addon';
 
 const Catalogs = () => {
-  // Mock user role for demo - in real app this would come from auth context
-  const userRole = 'ADMIN'; // This should come from your auth context
-  const { 
-    eventGroups, 
-    guestTypes, 
-    addons, 
-    updateEventGroup, 
-    deleteEventGroup, 
-    updateGuestType, 
-    deleteGuestType, 
-    updateAddon, 
-    deleteAddon,
-    addEventGroup,
-    addGuestType,
-    addAddon
-  } = useMockData();
+  const { profile } = useAuth();
+  const { toast } = useToast();
   
-  const [activeTab, setActiveTab] = useState<CatalogType>('eventGroups');
+  const [activeTab, setActiveTab] = useState<CatalogTab>('eventGroup');
+  const [eventGroups, setEventGroups] = useState<EventGroup[]>([]);
+  const [guestTypes, setGuestTypes] = useState<GuestType[]>([]);
+  const [addons, setAddons] = useState<Addon[]>([]);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    page: 0,
+    size: 10,
+    totalPages: 0,
+    totalElements: 0,
+  });
+
+  useEffect(() => {
+    loadCatalogData();
+  }, [activeTab, pagination.page]);
+
+  const loadCatalogData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await catalogsService.getCatalogTable(activeTab as CatalogType, {
+        page: pagination.page,
+        size: pagination.size,
+        sortBy: 'id',
+        order: 'ASC',
+      });
+
+      if (activeTab === 'eventGroup') {
+        setEventGroups(response.content as EventGroup[]);
+      } else if (activeTab === 'guestType') {
+        setGuestTypes(response.content as GuestType[]);
+      } else if (activeTab === 'addon') {
+        setAddons(response.content as Addon[]);
+      }
+
+      setPagination(prev => ({
+        ...prev,
+        totalPages: response.totalPages,
+        totalElements: response.totalElements,
+      }));
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Error al cargar datos",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleEdit = (item: any) => {
     setEditingItem({ ...item });
@@ -63,50 +97,68 @@ const Catalogs = () => {
   };
 
   const handleAdd = () => {
-    const newItem = activeTab === 'eventGroups' 
-      ? { id: `eg_${Date.now()}`, name: '' }
-      : activeTab === 'guestTypes' 
-      ? { id: `gt_${Date.now()}`, name: '' }
-      : { id: `ad_${Date.now()}`, name: '', description: '', image: '' };
+    const newItem = activeTab === 'eventGroup' 
+      ? { title: '' }
+      : activeTab === 'guestType' 
+      ? { title: '' }
+      : { title: '', icon: '' };
     
     setEditingItem(newItem);
     setIsAdding(true);
     setIsEditDialogOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!editingItem) return;
     
-    if (isAdding) {
-      if (activeTab === 'eventGroups') {
-        addEventGroup(editingItem);
-      } else if (activeTab === 'guestTypes') {
-        addGuestType(editingItem);
-      } else if (activeTab === 'addons') {
-        addAddon(editingItem);
+    setIsLoading(true);
+    try {
+      if (isAdding) {
+        await catalogsService.createCatalog(activeTab as CatalogType, editingItem);
+        toast({
+          title: "Éxito",
+          description: "Elemento creado exitosamente",
+        });
+      } else {
+        await catalogsService.updateCatalog(activeTab as CatalogType, editingItem);
+        toast({
+          title: "Éxito",
+          description: "Elemento actualizado exitosamente",
+        });
       }
-    } else {
-      if (activeTab === 'eventGroups') {
-        updateEventGroup(editingItem.id, editingItem);
-      } else if (activeTab === 'guestTypes') {
-        updateGuestType(editingItem.id, editingItem);
-      } else if (activeTab === 'addons') {
-        updateAddon(editingItem.id, editingItem);
-      }
+      
+      setIsEditDialogOpen(false);
+      setEditingItem(null);
+      setIsAdding(false);
+      loadCatalogData();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Error al guardar",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsEditDialogOpen(false);
-    setEditingItem(null);
-    setIsAdding(false);
   };
 
-  const handleDelete = (id: string) => {
-    if (activeTab === 'eventGroups') {
-      deleteEventGroup(id);
-    } else if (activeTab === 'guestTypes') {
-      deleteGuestType(id);
-    } else if (activeTab === 'addons') {
-      deleteAddon(id);
+  const handleDelete = async (id: number) => {
+    setIsLoading(true);
+    try {
+      const response = await catalogsService.deleteCatalog(activeTab as CatalogType, id);
+      toast({
+        title: "Éxito",
+        description: response,
+      });
+      loadCatalogData();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Error al borrar",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -115,14 +167,14 @@ const Catalogs = () => {
       accessorKey: 'id',
       header: 'ID',
       cell: ({ row }) => (
-        <span className="font-mono text-xs">{row.getValue('id')?.toString().slice(0, 8)}...</span>
+        <span className="font-mono text-xs">{row.getValue('id')}</span>
       ),
     },
     {
-      accessorKey: 'name',
+      accessorKey: 'title',
       header: 'Nombre',
       cell: ({ row }) => (
-        <span className="font-medium">{row.getValue('name')}</span>
+        <span className="font-medium">{row.getValue('title')}</span>
       ),
     },
     {
@@ -151,16 +203,16 @@ const Catalogs = () => {
                 </AlertDialogTrigger>
                 <AlertDialogContent className="bg-gradient-card backdrop-blur-lg border-border/50">
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete the event group
-                      "{group.name}".
+                      Esta acción no se puede deshacer. Esto eliminará permanentemente el tipo de evento
+                      "{group.title}".
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
                     <AlertDialogAction onClick={() => handleDelete(group.id)}>
-                      Delete
+                      Borrar
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -177,14 +229,14 @@ const Catalogs = () => {
       accessorKey: 'id',
       header: 'ID',
       cell: ({ row }) => (
-        <span className="font-mono text-xs">{row.getValue('id')?.toString().slice(0, 8)}...</span>
+        <span className="font-mono text-xs">{row.getValue('id')}</span>
       ),
     },
     {
-      accessorKey: 'name',
+      accessorKey: 'title',
       header: 'Nombre',
       cell: ({ row }) => (
-        <span className="font-medium">{row.getValue('name')}</span>
+        <span className="font-medium">{row.getValue('title')}</span>
       ),
     },
     {
@@ -216,7 +268,7 @@ const Catalogs = () => {
                     <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                     <AlertDialogDescription>
                       Esta acción no se puede deshacer. Esto eliminará permanentemente el tipo de invitado
-                      "{guestType.name}".
+                      "{guestType.title}".
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -236,33 +288,24 @@ const Catalogs = () => {
 
   const addonColumns: ColumnDef<Addon>[] = useMemo(() => [
     {
-      accessorKey: 'image',
+      accessorKey: 'icon',
       header: 'Icono',
       cell: ({ row }) => (
-        <div className="text-lg">{row.getValue('image') || '📦'}</div>
+        <div className="text-lg">{row.getValue('icon') || '📦'}</div>
       ),
     },
     {
       accessorKey: 'id',
       header: 'ID',
       cell: ({ row }) => (
-        <span className="font-mono text-xs">{row.getValue('id')?.toString().slice(0, 8)}...</span>
+        <span className="font-mono text-xs">{row.getValue('id')}</span>
       ),
     },
     {
-      accessorKey: 'name',
+      accessorKey: 'title',
       header: 'Nombre',
       cell: ({ row }) => (
-        <span className="font-medium">{row.getValue('name')}</span>
-      ),
-    },
-    {
-      accessorKey: 'description',
-      header: 'Descripción',
-      cell: ({ row }) => (
-        <span className="text-sm text-muted-foreground max-w-xs truncate block">
-          {row.getValue('description')}
-        </span>
+        <span className="font-medium">{row.getValue('title')}</span>
       ),
     },
     {
@@ -294,7 +337,7 @@ const Catalogs = () => {
                     <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                     <AlertDialogDescription>
                       Esta acción no se puede deshacer. Esto eliminará permanentemente el extra
-                      "{addon.name}".
+                      "{addon.title}".
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -320,8 +363,8 @@ const Catalogs = () => {
         <DialogContent className="bg-gradient-card backdrop-blur-lg border-border/50">
           <DialogHeader>
             <DialogTitle>
-              {isAdding ? 'Agregar' : 'Editar'} {activeTab === 'eventGroups' ? 'Tipo de Evento' : 
-                    activeTab === 'guestTypes' ? 'Tipo de Invitado' : 'Extra'}
+              {isAdding ? 'Agregar' : 'Editar'} {activeTab === 'eventGroup' ? 'Tipo de Evento' : 
+                    activeTab === 'guestType' ? 'Tipo de Invitado' : 'Extra'}
             </DialogTitle>
             <DialogDescription>
               {isAdding ? 'Completa los detalles a continuación y haz clic en guardar para crear.' : 'Actualiza los detalles a continuación y haz clic en guardar cuando termines.'}
@@ -330,46 +373,35 @@ const Catalogs = () => {
           
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">Nombre</Label>
+              <Label htmlFor="title" className="text-right">Nombre</Label>
               <Input
-                id="name"
-                value={editingItem.name || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
+                id="title"
+                value={editingItem.title || ''}
+                onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
                 className="col-span-3"
               />
             </div>
             
-            {activeTab === 'addons' && (
-              <>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="description" className="text-right">Descripción</Label>
-                  <Textarea
-                    id="description"
-                    value={editingItem.description || ''}
-                    onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
-                    className="col-span-3"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="image" className="text-right">Icono</Label>
-                  <Input
-                    id="image"
-                    value={editingItem.image || ''}
-                    onChange={(e) => setEditingItem({ ...editingItem, image: e.target.value })}
-                    className="col-span-3"
-                    placeholder="Emoji o icono"
-                  />
-                </div>
-              </>
+            {activeTab === 'addon' && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="icon" className="text-right">Icono</Label>
+                <Input
+                  id="icon"
+                  value={editingItem.icon || ''}
+                  onChange={(e) => setEditingItem({ ...editingItem, icon: e.target.value })}
+                  className="col-span-3"
+                  placeholder="Emoji o icono"
+                />
+              </div>
             )}
           </div>
           
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} disabled={isLoading}>
               Cancelar
             </Button>
-            <Button onClick={handleSave}>
-              {isAdding ? 'Crear' : 'Guardar cambios'}
+            <Button onClick={handleSave} disabled={isLoading}>
+              {isLoading ? 'Guardando...' : isAdding ? 'Crear' : 'Guardar cambios'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -385,17 +417,17 @@ const Catalogs = () => {
             <CardTitle className="text-3xl font-bold text-foreground">Catálogos</CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as CatalogType)}>
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as CatalogTab)}>
               <TabsList className="grid w-full grid-cols-3 bg-secondary/30">
-                <TabsTrigger value="eventGroups">Tipo de Evento</TabsTrigger>
-                <TabsTrigger value="guestTypes">Tipo de Invitado</TabsTrigger>
-                <TabsTrigger value="addons">Extras</TabsTrigger>
+                <TabsTrigger value="eventGroup">Tipo de Evento</TabsTrigger>
+                <TabsTrigger value="guestType">Tipo de Invitado</TabsTrigger>
+                <TabsTrigger value="addon">Extras</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="eventGroups" className="mt-6">
+              <TabsContent value="eventGroup" className="mt-6">
                 <div className="flex justify-between items-center mb-4">
                   <div></div>
-                  {userRole === 'ADMIN' && (
+                  {profile === 'ADMIN' && (
                     <Button onClick={handleAdd} className="bg-primary hover:bg-primary/90">
                       <Plus className="mr-2 h-4 w-4" />
                       Agregar Tipo de Evento
@@ -409,10 +441,10 @@ const Catalogs = () => {
                 />
               </TabsContent>
               
-              <TabsContent value="guestTypes" className="mt-6">
+              <TabsContent value="guestType" className="mt-6">
                 <div className="flex justify-between items-center mb-4">
                   <div></div>
-                  {userRole === 'ADMIN' && (
+                  {profile === 'ADMIN' && (
                     <Button onClick={handleAdd} className="bg-primary hover:bg-primary/90">
                       <Plus className="mr-2 h-4 w-4" />
                       Agregar Tipo de Invitado
@@ -426,10 +458,10 @@ const Catalogs = () => {
                 />
               </TabsContent>
               
-              <TabsContent value="addons" className="mt-6">
+              <TabsContent value="addon" className="mt-6">
                 <div className="flex justify-between items-center mb-4">
                   <div></div>
-                  {userRole === 'ADMIN' && (
+                  {profile === 'ADMIN' && (
                     <Button onClick={handleAdd} className="bg-primary hover:bg-primary/90">
                       <Plus className="mr-2 h-4 w-4" />
                       Agregar Extra
