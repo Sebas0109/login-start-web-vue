@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User } from '@/data/mockData';
+import { User, CreateUserData, UpdateUserData } from '@/types/user';
 import { mockStateCodes } from '@/data/mockData';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -14,51 +14,58 @@ interface UserModalProps {
   user: User | null;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (user: User) => void;
+  onSave: (data: CreateUserData | UpdateUserData) => void;
   mode?: 'create' | 'edit';
   existingUsers?: User[];
 }
 
 export const UserModal = ({ user, isOpen, onClose, onSave, mode = 'edit', existingUsers = [] }: UserModalProps) => {
   const { toast } = useToast();
-  const [formData, setFormData] = useState<User>({
-    id: '',
+  const [formData, setFormData] = useState({
+    id: 0,
     name: '',
     paternalSurname: '',
     maternalSurname: '',
     email: '',
     profile: 'CLIENT',
-    phoneNumber: '',
+    phone: '',
     stateCode: '',
-    password: ''
   });
   
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isPasswordSectionOpen, setIsPasswordSectionOpen] = useState(false);
   const [passwordData, setPasswordData] = useState({
-    newPassword: '',
+    password: '',
     confirmPassword: ''
   });
 
   useEffect(() => {
     if (mode === 'create') {
       setFormData({
-        id: '',
+        id: 0,
         name: '',
         paternalSurname: '',
         maternalSurname: '',
         email: '',
         profile: 'CLIENT',
-        phoneNumber: '',
+        phone: '',
         stateCode: '',
-        password: ''
       });
-      setPasswordData({ newPassword: '', confirmPassword: '' });
+      setPasswordData({ password: '', confirmPassword: '' });
       setIsPasswordSectionOpen(false);
       setErrors({});
     } else if (user) {
-      setFormData(user);
-      setPasswordData({ newPassword: '', confirmPassword: '' });
+      setFormData({
+        id: user.id,
+        name: user.person.name,
+        paternalSurname: user.person.paternalSurname,
+        maternalSurname: user.person.maternalSurname,
+        email: user.email,
+        profile: user.profile,
+        phone: user.person.phone,
+        stateCode: user.person.stateCode,
+      });
+      setPasswordData({ password: '', confirmPassword: '' });
       setIsPasswordSectionOpen(false);
       setErrors({});
     }
@@ -89,16 +96,16 @@ export const UserModal = ({ user, isOpen, onClose, onSave, mode = 'edit', existi
       }
     }
 
-    if (formData.phoneNumber.trim() && !/^\d+$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = 'El número telefónico debe contener solo dígitos';
+    if (formData.phone.trim() && !/^\d+$/.test(formData.phone)) {
+      newErrors.phone = 'El número telefónico debe contener solo dígitos';
     }
 
-    // Password validation for create mode or when changing password
-    if (mode === 'create' || (isPasswordSectionOpen && (passwordData.newPassword || passwordData.confirmPassword))) {
-      if (!passwordData.newPassword || passwordData.newPassword.length < 8) {
-        newErrors.newPassword = 'La contraseña debe tener al menos 8 caracteres';
+    // Password validation for create mode
+    if (mode === 'create') {
+      if (!passwordData.password || passwordData.password.length < 8) {
+        newErrors.password = 'La contraseña debe tener al menos 8 caracteres';
       }
-      if (passwordData.newPassword !== passwordData.confirmPassword) {
+      if (passwordData.password !== passwordData.confirmPassword) {
         newErrors.confirmPassword = 'Las contraseñas no coinciden';
       }
     }
@@ -110,35 +117,42 @@ export const UserModal = ({ user, isOpen, onClose, onSave, mode = 'edit', existi
   const handleSave = () => {
     if (!validateForm()) return;
 
-    const updatedUser = { ...formData };
-    
-    // Generate ID for new users
     if (mode === 'create') {
-      updatedUser.id = crypto.randomUUID();
-      updatedUser.password = passwordData.newPassword;
-    } else if (isPasswordSectionOpen && passwordData.newPassword) {
-      updatedUser.password = passwordData.newPassword;
+      const createData: CreateUserData = {
+        email: formData.email,
+        password: passwordData.password,
+        name: formData.name,
+        paternalSurname: formData.paternalSurname,
+        maternalSurname: formData.maternalSurname,
+        stateCode: formData.stateCode,
+        phone: formData.phone,
+      };
+      onSave(createData);
+    } else {
+      const updateData: UpdateUserData = {
+        id: formData.id,
+        email: formData.email,
+        name: formData.name,
+        paternalSurname: formData.paternalSurname,
+        maternalSurname: formData.maternalSurname,
+        stateCode: formData.stateCode,
+        phone: formData.phone,
+      };
+      onSave(updateData);
     }
-
-    onSave(updatedUser);
-    toast({
-      title: "Éxito",
-      description: mode === 'create' ? "Usuario agregado correctamente" : "Usuario actualizado correctamente",
-    });
+    
     onClose();
   };
 
-  const handleInputChange = (field: keyof User, value: string) => {
+  const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
-  const handlePasswordChange = (field: 'newPassword' | 'confirmPassword', value: string) => {
+  const handlePasswordChange = (field: 'password' | 'confirmPassword', value: string) => {
     setPasswordData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -254,14 +268,14 @@ export const UserModal = ({ user, isOpen, onClose, onSave, mode = 'edit', existi
               <Label>Número telefónico</Label>
               <Input
                 type="tel"
-                value={formData.phoneNumber}
-                onChange={(e) => handleInputChange('phoneNumber', e.target.value.replace(/\D/g, ''))}
-                className={errors.phoneNumber ? 'border-destructive' : ''}
+                value={formData.phone}
+                onChange={(e) => handleInputChange('phone', e.target.value.replace(/\D/g, ''))}
+                className={errors.phone ? 'border-destructive' : ''}
                 placeholder="Ingresa el número telefónico"
                 maxLength={10}
               />
               <p className="text-xs text-muted-foreground">Ingresa el número sin LADA</p>
-              {errors.phoneNumber && <p className="text-sm text-destructive">{errors.phoneNumber}</p>}
+              {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
             </div>
           </div>
 
@@ -275,12 +289,12 @@ export const UserModal = ({ user, isOpen, onClose, onSave, mode = 'edit', existi
                   <Label>Nueva contraseña *</Label>
                   <Input
                     type="password"
-                    value={passwordData.newPassword}
-                    onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
-                    className={errors.newPassword ? 'border-destructive' : ''}
+                    value={passwordData.password}
+                    onChange={(e) => handlePasswordChange('password', e.target.value)}
+                    className={errors.password ? 'border-destructive' : ''}
                     placeholder="Ingresa la contraseña"
                   />
-                  {errors.newPassword && <p className="text-sm text-destructive">{errors.newPassword}</p>}
+                  {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                 </div>
 
                 {/* Confirm Password */}
@@ -316,12 +330,12 @@ export const UserModal = ({ user, isOpen, onClose, onSave, mode = 'edit', existi
                     <Label>Nueva contraseña</Label>
                     <Input
                       type="password"
-                      value={passwordData.newPassword}
-                      onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
-                      className={errors.newPassword ? 'border-destructive' : ''}
+                      value={passwordData.password}
+                      onChange={(e) => handlePasswordChange('password', e.target.value)}
+                      className={errors.password ? 'border-destructive' : ''}
                       placeholder="Ingresa la nueva contraseña"
                     />
-                    {errors.newPassword && <p className="text-sm text-destructive">{errors.newPassword}</p>}
+                    {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                   </div>
 
                   {/* Confirm Password */}

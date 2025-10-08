@@ -10,27 +10,65 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { UserModal } from '@/components/UserModal';
-import { useMockData } from '@/hooks/useMockData';
-import { User } from '@/data/mockData';
+import { User } from '@/types/user';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { usersService } from '@/services/usersService';
 
 const Users = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { users, updateUser, deleteUser } = useMockData();
+  const { profile } = useAuth();
+  const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('edit');
+  const [isLoading, setIsLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    page: 0,
+    size: 10,
+    totalElements: 0,
+    totalPages: 0,
+  });
+  const [searchKeyword, setSearchKeyword] = useState('');
 
-  // Check if user role is ADMIN (mock check - in real app this would come from auth)
-  const currentUserRole = 'ADMIN'; // This should come from your auth context/state
-  
   useEffect(() => {
-    if (currentUserRole !== 'ADMIN') {
+    if (profile !== 'ADMIN') {
       navigate('/events');
     }
-  }, [currentUserRole, navigate]);
+  }, [profile, navigate]);
 
-  const [modalMode, setModalMode] = useState<'create' | 'edit'>('edit');
+  useEffect(() => {
+    loadUsers();
+  }, [pagination.page, pagination.size, searchKeyword]);
+
+  const loadUsers = async () => {
+    try {
+      setIsLoading(true);
+      const response = await usersService.getUsersPage({
+        keyword: searchKeyword,
+        sortBy: 'id',
+        order: 'DESC',
+        page: pagination.page,
+        size: pagination.size,
+      });
+      
+      setUsers(response.content);
+      setPagination(prev => ({
+        ...prev,
+        totalElements: response.totalElements,
+        totalPages: response.totalPages,
+      }));
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Error al cargar usuarios",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleUpdateUser = (user: User) => {
     setSelectedUser(user);
@@ -44,23 +82,51 @@ const Users = () => {
     setIsModalOpen(true);
   };
 
-  const handleSaveUser = (updatedUser: User) => {
-    if (modalMode === 'create') {
-      // Add to users array (this would be handled by the hook in a real app)
-      updateUser(updatedUser.id, updatedUser);
-    } else {
-      updateUser(updatedUser.id, updatedUser);
+  const handleSaveUser = async (userData: any) => {
+    try {
+      setIsLoading(true);
+      if (modalMode === 'create') {
+        await usersService.createUser(userData);
+        toast({
+          title: "Éxito",
+          description: "Usuario creado correctamente.",
+        });
+      } else {
+        await usersService.updateUser(userData);
+        toast({
+          title: "Éxito",
+          description: "Usuario actualizado correctamente.",
+        });
+      }
+      setIsModalOpen(false);
+      setSelectedUser(null);
+      await loadUsers();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Error al guardar usuario",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
-    setIsModalOpen(false);
-    setSelectedUser(null);
   };
 
-  const handleDeleteUser = (userId: string) => {
-    deleteUser(userId);
-    toast({
-      title: "Éxito",
-      description: "Usuario eliminado correctamente",
-    });
+  const handleDeleteUser = async (userId: number) => {
+    try {
+      const message = await usersService.deleteUser(userId);
+      toast({
+        title: "Éxito",
+        description: message,
+      });
+      await loadUsers();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Error al eliminar usuario",
+        variant: "destructive",
+      });
+    }
   };
 
   const columns: ColumnDef<User>[] = [
@@ -68,36 +134,24 @@ const Users = () => {
       accessorKey: "id",
       header: "ID",
       cell: ({ row }) => {
-        const id = row.getValue("id") as string;
-        const truncatedId = id.length > 8 ? `${id.substring(0, 8)}...` : id;
-        return (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="font-mono text-sm cursor-help">{truncatedId}</span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="font-mono text-sm">{id}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        );
+        const id = row.getValue("id") as number;
+        return <div className="font-mono text-sm">{id}</div>;
       },
     },
     {
-      accessorKey: "name",
+      accessorKey: "person.name",
       header: "Nombre",
-      cell: ({ row }) => <div>{row.getValue("name")}</div>,
+      cell: ({ row }) => <div>{row.original.person.name}</div>,
     },
     {
-      accessorKey: "paternalSurname",
+      accessorKey: "person.paternalSurname",
       header: "Apellido Paterno",
-      cell: ({ row }) => <div>{row.getValue("paternalSurname")}</div>,
+      cell: ({ row }) => <div>{row.original.person.paternalSurname}</div>,
     },
     {
-      accessorKey: "maternalSurname",
+      accessorKey: "person.maternalSurname",
       header: "Apellido Materno",
-      cell: ({ row }) => <div>{row.getValue("maternalSurname")}</div>,
+      cell: ({ row }) => <div>{row.original.person.maternalSurname}</div>,
     },
     {
       accessorKey: "email",
@@ -117,14 +171,14 @@ const Users = () => {
       },
     },
     {
-      accessorKey: "phoneNumber",
+      accessorKey: "person.phone",
       header: "Número de Teléfono",
-      cell: ({ row }) => <div className="font-mono">{row.getValue("phoneNumber")}</div>,
+      cell: ({ row }) => <div className="font-mono">{row.original.person.phone}</div>,
     },
     {
-      accessorKey: "stateCode",
+      accessorKey: "person.stateCode",
       header: "Código de Estado",
-      cell: ({ row }) => <div className="font-mono">{row.getValue("stateCode")}</div>,
+      cell: ({ row }) => <div className="font-mono">{row.original.person.stateCode}</div>,
     },
     {
       id: "actions",
@@ -155,10 +209,10 @@ const Users = () => {
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Esta acción no se puede deshacer. Esto eliminará permanentemente al usuario
-                      "{user.name} {user.paternalSurname}" y eliminará todos sus datos del sistema.
-                    </AlertDialogDescription>
+                  <AlertDialogDescription>
+                    Esta acción no se puede deshacer. Esto eliminará permanentemente al usuario
+                    "{user.person.name} {user.person.paternalSurname}" y eliminará todos sus datos del sistema.
+                  </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
@@ -175,8 +229,8 @@ const Users = () => {
     },
   ];
 
-  if (currentUserRole !== 'ADMIN') {
-    return null; // This will prevent flash before redirect
+  if (profile !== 'ADMIN') {
+    return null;
   }
 
   return (
@@ -197,6 +251,7 @@ const Users = () => {
               columns={columns} 
               data={users} 
               searchPlaceholder="Buscar usuarios..."
+              onGlobalFilterChange={setSearchKeyword}
             />
           </CardContent>
         </Card>
