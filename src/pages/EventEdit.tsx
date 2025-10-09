@@ -5,7 +5,6 @@ import { CalendarIcon, X, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -13,69 +12,114 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { useMockData } from '@/hooks/useMockData';
-import { Event } from '@/data/mockData';
+import * as eventsService from '@/services/eventsService';
+import { catalogsService } from '@/services/catalogsService';
+import { usersService } from '@/services/usersService';
+import type { EventDto, CreateEventPayload, UpdateEventPayload } from '@/types/event';
+import type { CatalogElement, Addon } from '@/types/catalog';
+import type { SelectClient } from '@/types/user';
 
 const EventEdit = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { events, eventGroups, guestTypes, addons, users, addEvent, updateEvent } = useMockData();
 
-  const [formData, setFormData] = useState<Event>({
-    id: '',
+  // Form state
+  const [formData, setFormData] = useState({
+    title: '',
     date: '',
     time: '',
-    name: '',
-    slug: '',
-    ownerEmails: [],
-    package: 'classic',
-    eventGroup: '',
-    guestType: '',
-    addons: [],
-    ownerName: '',
-    ownerUserId: '',
-    escortLimit: 0,
-    guestLimit: 0,
-    guests: []
+    slugs: [''],
+    userId: 0,
+    eventGroupId: 0,
+    packageId: 0,
+    addonIds: [] as number[],
+    guestTypeId: 0,
+    notificationEmails: [] as string[],
+    limitGuests: 0,
+    escortsLimit: 0,
   });
+
+  // Catalog data
+  const [packages, setPackages] = useState<CatalogElement[]>([]);
+  const [eventGroups, setEventGroups] = useState<CatalogElement[]>([]);
+  const [guestTypes, setGuestTypes] = useState<CatalogElement[]>([]);
+  const [addons, setAddons] = useState<CatalogElement[]>([]);
+  const [clients, setClients] = useState<SelectClient[]>([]);
 
   const [emailInput, setEmailInput] = useState('');
   const [emailError, setEmailError] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+  const [existingSlugs, setExistingSlugs] = useState<{ id: number; slug: string }[]>([]);
 
+  // Load catalog data on mount
   useEffect(() => {
-    if (id && id !== 'new') {
-      const event = events.find(e => e.id === id);
-      if (event) {
-        setFormData(event);
-        setSelectedDate(new Date(event.date));
-      } else {
-        navigate('/events');
+    const loadCatalogs = async () => {
+      try {
+        const [pkgs, evtGroups, gstTypes, adds, cls] = await Promise.all([
+          catalogsService.getCatalogSelect('package'),
+          catalogsService.getCatalogSelect('eventGroup'),
+          catalogsService.getCatalogSelect('guestType'),
+          catalogsService.getCatalogSelect('addon'),
+          usersService.getSelectClients(),
+        ]);
+        setPackages(pkgs);
+        setEventGroups(evtGroups);
+        setGuestTypes(gstTypes);
+        setAddons(adds);
+        setClients(cls);
+      } catch (error) {
+        console.error('Error loading catalogs:', error);
+        toast({
+          title: 'Error',
+          description: 'No se pudieron cargar los catálogos',
+          variant: 'destructive',
+        });
       }
-    } else if (id === 'new') {
-      // Reset form for new event
-      setFormData({
-        id: '',
-        date: '',
-        time: '',
-        guestLimit: 0,
-        escortLimit: 0,
-        ownerEmails: [],
-        name: '',
-        package: 'classic',
-        eventGroup: '',
-        guestType: '',
-        addons: [],
-        ownerName: '',
-        ownerUserId: '',
-        slug: '',
-        guests: []
-      });
-      setSelectedDate(undefined);
-    }
-  }, [id, events, navigate]);
+    };
+    loadCatalogs();
+  }, [toast]);
+
+  // Load event data if editing
+  useEffect(() => {
+    const loadEvent = async () => {
+      if (id && id !== 'new') {
+        setLoading(true);
+        try {
+          const event = await eventsService.getEventById(id);
+          setFormData({
+            title: event.title,
+            date: event.date,
+            time: event.time,
+            slugs: event.slugs.map(s => s.slug),
+            userId: event.userDto.id,
+            eventGroupId: event.eventGroupDto.id,
+            packageId: event._packageDto.id,
+            addonIds: event.addons.map(a => a.id),
+            guestTypeId: event.guestTypeDto?.id || 0,
+            notificationEmails: event.notificationEmails,
+            limitGuests: event.limitGuests,
+            escortsLimit: event.escortsLimit,
+          });
+          setExistingSlugs(event.slugs);
+          setSelectedDate(new Date(event.date));
+        } catch (error) {
+          console.error('Error loading event:', error);
+          toast({
+            title: 'Error',
+            description: 'No se pudo cargar el evento',
+            variant: 'destructive',
+          });
+          navigate('/events');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    loadEvent();
+  }, [id, navigate, toast]);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -95,14 +139,14 @@ const EventEdit = () => {
       return;
     }
 
-    if (formData.ownerEmails.includes(trimmedEmail)) {
+    if (formData.notificationEmails.includes(trimmedEmail)) {
       setEmailError('Correo ya agregado');
       return;
     }
 
     setFormData(prev => ({
       ...prev,
-      ownerEmails: [...prev.ownerEmails, trimmedEmail]
+      notificationEmails: [...prev.notificationEmails, trimmedEmail]
     }));
     setEmailInput('');
     setEmailError('');
@@ -111,71 +155,135 @@ const EventEdit = () => {
   const removeEmail = (emailToRemove: string) => {
     setFormData(prev => ({
       ...prev,
-      ownerEmails: prev.ownerEmails.filter(email => email !== emailToRemove)
+      notificationEmails: prev.notificationEmails.filter(email => email !== emailToRemove)
     }));
   };
 
-  const toggleAddon = (addonId: string) => {
+  const toggleAddon = (addonId: number) => {
     setFormData(prev => ({
       ...prev,
-      addons: prev.addons.includes(addonId)
-        ? prev.addons.filter(id => id !== addonId)
-        : [...prev.addons, addonId]
+      addonIds: prev.addonIds.includes(addonId)
+        ? prev.addonIds.filter(id => id !== addonId)
+        : [...prev.addonIds, addonId]
+    }));
+  };
+
+  const addSlug = () => {
+    setFormData(prev => ({
+      ...prev,
+      slugs: [...prev.slugs, '']
+    }));
+  };
+
+  const removeSlug = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      slugs: prev.slugs.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateSlug = (index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      slugs: prev.slugs.map((slug, i) => i === index ? value : slug)
     }));
   };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name.trim()) newErrors.name = 'El título del evento es requerido';
-    if (!formData.slug.trim()) newErrors.slug = 'El slug es requerido';
+    if (!formData.title.trim()) newErrors.title = 'El título del evento es requerido';
+    if (formData.slugs.some(s => !s.trim())) newErrors.slugs = 'Todos los slugs son requeridos';
     if (!formData.date) newErrors.date = 'La fecha es requerida';
-    if (!formData.package) newErrors.package = 'El paquete es requerido';
-    if (!formData.eventGroup) newErrors.eventGroup = 'El tipo de evento es requerido';
-    if (!formData.ownerUserId) newErrors.ownerUserId = 'El propietario es requerido';
-    if (formData.escortLimit < 0) newErrors.escortLimit = 'El límite de acompañantes debe ser 0 o mayor';
-    if (formData.guestLimit < 0) newErrors.guestLimit = 'El límite de invitados debe ser 0 o mayor';
+    if (!formData.time) newErrors.time = 'La hora es requerida';
+    if (!formData.packageId) newErrors.packageId = 'El paquete es requerido';
+    if (!formData.eventGroupId) newErrors.eventGroupId = 'El tipo de evento es requerido';
+    if (!formData.userId) newErrors.userId = 'El propietario es requerido';
+    if (formData.escortsLimit < 0) newErrors.escortsLimit = 'El límite de acompañantes debe ser 0 o mayor';
+    if (formData.limitGuests < 0) newErrors.limitGuests = 'El límite de invitados debe ser 0 o mayor';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!validateForm()) return;
 
-    if (id === 'new') {
-      // Generate a new ID for the event
-      const newId = `event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const newEvent = { ...formData, id: newId };
-      addEvent(newEvent);
+    setLoading(true);
+    try {
+      if (id === 'new') {
+        const payload: CreateEventPayload = {
+          title: formData.title,
+          date: formData.date,
+          time: formData.time,
+          slugs: formData.slugs.map(slug => ({ slug })),
+          userId: formData.userId,
+          eventGroupId: formData.eventGroupId,
+          packageId: formData.packageId,
+          addonIds: formData.addonIds,
+          guestTypeId: formData.guestTypeId,
+          notificationEmails: formData.notificationEmails,
+          limitGuests: formData.limitGuests,
+          escortsLimit: formData.escortsLimit,
+        };
+        await eventsService.createEvent(payload);
+        toast({
+          title: 'Éxito',
+          description: 'Evento creado correctamente.',
+        });
+      } else {
+        const payload: UpdateEventPayload = {
+          id: id!,
+          title: formData.title,
+          date: formData.date,
+          time: formData.time,
+          slugs: formData.slugs.map((slug, index) => {
+            const existing = existingSlugs[index];
+            return existing ? { id: existing.id, slug } : { id: 0, slug };
+          }),
+          userId: formData.userId,
+          eventGroupId: formData.eventGroupId,
+          packageId: formData.packageId,
+          addonIds: formData.addonIds,
+          guestTypeId: formData.guestTypeId,
+          notificationEmails: formData.notificationEmails,
+          limitGuests: formData.limitGuests,
+          escortsLimit: formData.escortsLimit,
+        };
+        await eventsService.updateEvent(payload);
+        toast({
+          title: 'Éxito',
+          description: 'Evento actualizado correctamente.',
+        });
+      }
+      navigate('/events');
+    } catch (error) {
+      console.error('Error saving event:', error);
       toast({
-        title: 'Éxito',
-        description: 'Evento creado exitosamente',
+        title: 'Error',
+        description: 'No se pudo guardar el evento',
+        variant: 'destructive',
       });
-    } else {
-      updateEvent(formData.id, formData);
-      toast({
-        title: 'Éxito',
-        description: 'Evento actualizado exitosamente',
-      });
+    } finally {
+      setLoading(false);
     }
-    navigate('/events');
   };
 
   const handleCancel = () => {
     navigate('/events');
   };
 
-  const handleOwnerChange = (userId: string) => {
-    const user = users.find(u => u.id === userId);
-    if (user) {
-      setFormData(prev => ({
-        ...prev,
-        ownerUserId: userId,
-        ownerName: user.name
-      }));
-    }
-  };
+  if (loading && id !== 'new') {
+    return (
+      <div className="container mx-auto py-6">
+        <Card>
+          <CardContent className="py-10 text-center">
+            <p>Cargando evento...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -184,40 +292,51 @@ const EventEdit = () => {
           <CardTitle>{id === 'new' ? 'Crear Evento' : 'Editar Evento'}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* UUID - Read-only */}
-          <div className="space-y-2">
-            <Label htmlFor="uuid">UUID</Label>
-            <Input
-              id="uuid"
-              value={formData.id}
-              readOnly
-              className="bg-muted"
-            />
-          </div>
-
           {/* Event Title */}
           <div className="space-y-2">
             <Label htmlFor="title">Título del evento *</Label>
             <Input
               id="title"
-              value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              className={errors.name ? 'border-destructive' : ''}
+              value={formData.title}
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              className={errors.title ? 'border-destructive' : ''}
             />
-            {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+            {errors.title && <p className="text-sm text-destructive">{errors.title}</p>}
           </div>
 
-          {/* Slug */}
+          {/* Slugs */}
           <div className="space-y-2">
-            <Label htmlFor="slug">Slug *</Label>
-            <Input
-              id="slug"
-              value={formData.slug}
-              onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
-              placeholder="e.g., mary_sweet_sixteen_party"
-              className={errors.slug ? 'border-destructive' : ''}
-            />
-            {errors.slug && <p className="text-sm text-destructive">{errors.slug}</p>}
+            <Label>Slugs *</Label>
+            {formData.slugs.map((slug, index) => (
+              <div key={index} className="flex gap-2">
+                <Input
+                  value={slug}
+                  onChange={(e) => updateSlug(index, e.target.value)}
+                  placeholder="e.g., mary_sweet_sixteen_party"
+                  className={errors.slugs ? 'border-destructive' : ''}
+                />
+                {formData.slugs.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeSlug(index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addSlug}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Agregar Slug
+            </Button>
+            {errors.slugs && <p className="text-sm text-destructive">{errors.slugs}</p>}
           </div>
 
           {/* Date and Time */}
@@ -270,43 +389,29 @@ const EventEdit = () => {
           {/* Limits */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="escortLimit">Límite de acompañantes</Label>
+              <Label htmlFor="escortsLimit">Límite de acompañantes</Label>
               <Input
-                id="escortLimit"
+                id="escortsLimit"
                 type="number"
                 min="0"
-                value={formData.escortLimit}
-                onChange={(e) => setFormData(prev => ({ ...prev, escortLimit: parseInt(e.target.value) || 0 }))}
-                onBlur={() => {
-                  if (formData.escortLimit < 0) {
-                    setErrors(prev => ({ ...prev, escortLimit: 'Debe ser 0 o mayor' }));
-                  } else {
-                    setErrors(prev => ({ ...prev, escortLimit: '' }));
-                  }
-                }}
-                className={errors.escortLimit ? 'border-destructive' : ''}
+                value={formData.escortsLimit}
+                onChange={(e) => setFormData(prev => ({ ...prev, escortsLimit: parseInt(e.target.value) || 0 }))}
+                className={errors.escortsLimit ? 'border-destructive' : ''}
               />
-              {errors.escortLimit && <p className="text-sm text-destructive">{errors.escortLimit}</p>}
+              {errors.escortsLimit && <p className="text-sm text-destructive">{errors.escortsLimit}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="guestLimit">Límite de invitados</Label>
+              <Label htmlFor="limitGuests">Límite de invitados</Label>
               <Input
-                id="guestLimit"
+                id="limitGuests"
                 type="number"
                 min="0"
-                value={formData.guestLimit}
-                onChange={(e) => setFormData(prev => ({ ...prev, guestLimit: parseInt(e.target.value) || 0 }))}
-                onBlur={() => {
-                  if (formData.guestLimit < 0) {
-                    setErrors(prev => ({ ...prev, guestLimit: 'Debe ser 0 o mayor' }));
-                  } else {
-                    setErrors(prev => ({ ...prev, guestLimit: '' }));
-                  }
-                }}
-                className={errors.guestLimit ? 'border-destructive' : ''}
+                value={formData.limitGuests}
+                onChange={(e) => setFormData(prev => ({ ...prev, limitGuests: parseInt(e.target.value) || 0 }))}
+                className={errors.limitGuests ? 'border-destructive' : ''}
               />
-              {errors.guestLimit && <p className="text-sm text-destructive">{errors.guestLimit}</p>}
+              {errors.limitGuests && <p className="text-sm text-destructive">{errors.limitGuests}</p>}
             </div>
           </div>
 
@@ -338,9 +443,9 @@ const EventEdit = () => {
             </div>
             {emailError && <p className="text-sm text-destructive">{emailError}</p>}
             
-            {formData.ownerEmails.length > 0 && (
+            {formData.notificationEmails.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
-                {formData.ownerEmails.map((email, index) => (
+                {formData.notificationEmails.map((email, index) => (
                   <Badge key={index} variant="secondary" className="flex items-center gap-1">
                     {email}
                     <X 
@@ -357,58 +462,60 @@ const EventEdit = () => {
           <div className="space-y-2">
             <Label>Paquete *</Label>
             <Select 
-              value={formData.package} 
-              onValueChange={(value: 'classic' | 'premium' | 'silver') => 
-                setFormData(prev => ({ ...prev, package: value }))
+              value={formData.packageId?.toString() || ''} 
+              onValueChange={(value) => 
+                setFormData(prev => ({ ...prev, packageId: parseInt(value) }))
               }
             >
-              <SelectTrigger className={errors.package ? 'border-destructive' : ''}>
+              <SelectTrigger className={errors.packageId ? 'border-destructive' : ''}>
                 <SelectValue placeholder="Seleccionar paquete" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="classic">Clásico</SelectItem>
-                <SelectItem value="premium">Premium</SelectItem>
-                <SelectItem value="silver">Plata</SelectItem>
+                {packages.map((pkg) => (
+                  <SelectItem key={pkg.id} value={pkg.id.toString()}>
+                    {pkg.title}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
-            {errors.package && <p className="text-sm text-destructive">{errors.package}</p>}
+            {errors.packageId && <p className="text-sm text-destructive">{errors.packageId}</p>}
           </div>
 
           {/* Event Group */}
           <div className="space-y-2">
             <Label>Tipo de evento *</Label>
             <Select 
-              value={formData.eventGroup} 
-              onValueChange={(value) => setFormData(prev => ({ ...prev, eventGroup: value }))}
+              value={formData.eventGroupId?.toString() || ''} 
+              onValueChange={(value) => setFormData(prev => ({ ...prev, eventGroupId: parseInt(value) }))}
             >
-              <SelectTrigger className={errors.eventGroup ? 'border-destructive' : ''}>
+              <SelectTrigger className={errors.eventGroupId ? 'border-destructive' : ''}>
                 <SelectValue placeholder="Seleccionar tipo de evento" />
               </SelectTrigger>
               <SelectContent>
                 {eventGroups.map((group) => (
-                  <SelectItem key={group.id} value={group.name.toLowerCase()}>
-                    {group.name}
+                  <SelectItem key={group.id} value={group.id.toString()}>
+                    {group.title}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {errors.eventGroup && <p className="text-sm text-destructive">{errors.eventGroup}</p>}
+            {errors.eventGroupId && <p className="text-sm text-destructive">{errors.eventGroupId}</p>}
           </div>
 
           {/* Guest Type */}
           <div className="space-y-2">
             <Label>Tipo de invitado</Label>
             <Select 
-              value={formData.guestType} 
-              onValueChange={(value) => setFormData(prev => ({ ...prev, guestType: value }))}
+              value={formData.guestTypeId?.toString() || ''} 
+              onValueChange={(value) => setFormData(prev => ({ ...prev, guestTypeId: parseInt(value) }))}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar tipo de invitado" />
               </SelectTrigger>
               <SelectContent>
                 {guestTypes.map((type) => (
-                  <SelectItem key={type.id} value={type.name.toLowerCase().replace(' ', '_')}>
-                    {type.name}
+                  <SelectItem key={type.id} value={type.id.toString()}>
+                    {type.title}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -419,55 +526,59 @@ const EventEdit = () => {
           <div className="space-y-2">
             <Label>Propietario *</Label>
             <Select 
-              value={formData.ownerUserId} 
-              onValueChange={handleOwnerChange}
+              value={formData.userId?.toString() || ''} 
+              onValueChange={(value) => setFormData(prev => ({ ...prev, userId: parseInt(value) }))}
             >
-              <SelectTrigger className={errors.ownerUserId ? 'border-destructive' : ''}>
+              <SelectTrigger className={errors.userId ? 'border-destructive' : ''}>
                 <SelectValue placeholder="Seleccionar propietario" />
               </SelectTrigger>
               <SelectContent>
-                {users.map((user) => (
-                  <SelectItem key={user.id} value={user.id}>
-                    {user.name} - {user.email}
+                {clients.map((client) => (
+                  <SelectItem key={client.id} value={client.id.toString()}>
+                    {client.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {errors.ownerUserId && <p className="text-sm text-destructive">{errors.ownerUserId}</p>}
+            {errors.userId && <p className="text-sm text-destructive">{errors.userId}</p>}
           </div>
 
           {/* Addons */}
           <div className="space-y-2">
             <Label>Extras</Label>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-              {addons.map((addon) => (
-                <div
-                  key={addon.id}
-                  className={cn(
-                    "flex items-center space-x-2 p-3 border rounded-lg cursor-pointer transition-colors",
-                    formData.addons.includes(addon.id)
-                      ? "bg-primary/10 border-primary"
-                      : "hover:bg-muted"
-                  )}
-                  onClick={() => toggleAddon(addon.id)}
-                >
-                  <span className="text-lg">{addon.image}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{addon.name}</p>
-                    <p className="text-xs text-muted-foreground">{addon.description}</p>
+              {addons.map((addon) => {
+                const addonTyped = addon as Addon;
+                return (
+                  <div
+                    key={addon.id}
+                    className={cn(
+                      "flex items-center space-x-2 p-3 border rounded-lg cursor-pointer transition-colors",
+                      formData.addonIds.includes(addon.id)
+                        ? "bg-primary/10 border-primary"
+                        : "hover:bg-muted"
+                    )}
+                    onClick={() => toggleAddon(addon.id)}
+                  >
+                    <span className="text-lg">{addonTyped.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{addon.title}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             
-            {formData.addons.length > 0 && (
+            {formData.addonIds.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
-                {formData.addons.map((addonId) => {
+                {formData.addonIds.map((addonId) => {
                   const addon = addons.find(a => a.id === addonId);
-                  return addon ? (
+                  if (!addon) return null;
+                  const addonTyped = addon as Addon;
+                  return (
                     <Badge key={addonId} variant="secondary" className="flex items-center gap-1">
-                      <span>{addon.image}</span>
-                      {addon.name}
+                      <span>{addonTyped.icon}</span>
+                      {addon.title}
                       <X 
                         className="h-3 w-3 cursor-pointer hover:text-destructive" 
                         onClick={(e) => {
@@ -476,7 +587,7 @@ const EventEdit = () => {
                         }}
                       />
                     </Badge>
-                  ) : null;
+                  );
                 })}
               </div>
             )}
@@ -484,10 +595,10 @@ const EventEdit = () => {
 
           {/* Actions */}
           <div className="flex gap-4 pt-4">
-            <Button onClick={handleSave} className="flex-1">
-              Guardar
+            <Button onClick={handleSave} className="flex-1" disabled={loading}>
+              {loading ? 'Guardando...' : 'Guardar'}
             </Button>
-            <Button onClick={handleCancel} variant="outline" className="flex-1">
+            <Button onClick={handleCancel} variant="outline" className="flex-1" disabled={loading}>
               Cancelar
             </Button>
           </div>
