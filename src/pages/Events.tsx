@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { ColumnDef } from '@tanstack/react-table';
 import { Eye, Edit, Trash2, Plus } from 'lucide-react';
@@ -18,30 +18,85 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { DataTable, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, MoreHorizontal } from '@/components/DataTable';
-import { useMockData } from '@/hooks/useMockData';
-import { Event } from '@/data/mockData';
+import { EventDto } from '@/types/event';
+import * as eventsService from '@/services/eventsService';
+import { useToast } from '@/hooks/use-toast';
 
 const Events = () => {
   const { currentRole } = useOutletContext<{ currentRole: 'ADMIN' | 'CLIENT' }>();
   const navigate = useNavigate();
-  const { events, deleteEvent } = useMockData();
+  const { toast } = useToast();
+  const [events, setEvents] = useState<EventDto[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    page: 0,
+    size: 25,
+    totalElements: 0,
+    totalPages: 0,
+  });
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [sortBy, setSortBy] = useState('title');
+  const [order, setOrder] = useState<'ASC' | 'DESC'>('ASC');
 
-  const packageColors = {
-    classic: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-    premium: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
-    silver: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300',
+  const loadEvents = async () => {
+    setLoading(true);
+    try {
+      const response = await eventsService.getEventsPage({
+        keyword: searchKeyword,
+        dateInit: '2025-01-01',
+        dateEnd: '2026-12-31',
+        sortBy,
+        order,
+        page: pagination.page,
+        size: pagination.size,
+      });
+      setEvents(response.content);
+      setPagination({
+        page: response.number,
+        size: response.size,
+        totalElements: response.totalElements,
+        totalPages: response.totalPages,
+      });
+    } catch (error) {
+      console.error('Error loading events:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudieron cargar los eventos',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    loadEvents();
+  }, [pagination.page, pagination.size, searchKeyword, sortBy, order]);
 
   const handleViewEvent = (eventId: string) => {
     navigate(`/events/${eventId}`);
   };
 
-  const handleDeleteEvent = (eventId: string) => {
-    deleteEvent(eventId);
+  const handleDeleteEvent = async (eventId: string) => {
+    try {
+      const response = await eventsService.deleteEvent(eventId);
+      toast({
+        title: "Éxito",
+        description: response || "Evento Borrado Exitosamente"
+      });
+      loadEvents();
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudo eliminar el evento',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const columns: ColumnDef<Event>[] = useMemo(() => {
-    const baseColumns: ColumnDef<Event>[] = [
+  const columns: ColumnDef<EventDto>[] = useMemo(() => {
+    const baseColumns: ColumnDef<EventDto>[] = [
       {
         accessorKey: 'id',
         header: 'ID',
@@ -80,17 +135,17 @@ const Events = () => {
         },
       },
       {
-        accessorKey: 'name',
+        accessorKey: 'title',
         header: 'Titulo',
         cell: ({ row }) => (
-          <span className="font-medium">{row.getValue('name')}</span>
+          <span className="font-medium">{row.getValue('title')}</span>
         ),
       },
       {
-        accessorKey: 'ownerEmails',
+        accessorKey: 'notificationEmails',
         header: 'Correos',
         cell: ({ row }) => {
-          const emails = row.getValue('ownerEmails') as string[];
+          const emails = row.getValue('notificationEmails') as string[];
           if (emails.length === 1) {
             return (
               <div className="max-w-[200px] overflow-x-auto">
@@ -137,22 +192,22 @@ const Events = () => {
         },
       },
       {
-        accessorKey: 'package',
+        accessorKey: '_packageDto.title',
         header: 'Paquete',
         cell: ({ row }) => {
-          const packageType = row.getValue('package') as string;
+          const pkg = row.original._packageDto;
           return (
-            <Badge className={packageColors[packageType as keyof typeof packageColors]}>
-              {packageType}
+            <Badge variant="default">
+              {pkg.title}
             </Badge>
           );
         },
       },
       {
-        accessorKey: 'eventGroup',
+        accessorKey: 'eventGroupDto.title',
         header: 'Tipo de Evento',
         cell: ({ row }) => (
-          <Badge variant="outline">{row.getValue('eventGroup')}</Badge>
+          <Badge variant="outline">{row.original.eventGroupDto.title}</Badge>
         ),
       },
     ];
@@ -160,11 +215,16 @@ const Events = () => {
     // Add Owner Name column only for ADMIN
     if (currentRole === 'ADMIN') {
       baseColumns.push({
-        accessorKey: 'ownerName',
+        accessorKey: 'userDto.person.name',
         header: 'Cliente',
-        cell: ({ row }) => (
-          <span className="font-medium">{row.getValue('ownerName')}</span>
-        ),
+        cell: ({ row }) => {
+          const user = row.original.userDto;
+          return (
+            <span className="font-medium">
+              {user.person.name} {user.person.paternalSurname}
+            </span>
+          );
+        },
       });
     }
 
@@ -204,7 +264,7 @@ const Events = () => {
                     <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                     <AlertDialogDescription>
                       Esta acción no se puede deshacer. Esto eliminará permanentemente el evento
-                      "{event.name}".
+                      "{event.title}".
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -236,6 +296,7 @@ const Events = () => {
               columns={columns}
               data={events}
               searchPlaceholder="Buscar..."
+              onGlobalFilterChange={setSearchKeyword}
               actionButton={
                 currentRole === 'ADMIN' ? (
                   <Button 
