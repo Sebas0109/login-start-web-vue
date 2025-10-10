@@ -4,16 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import type { Guest } from '@/data/mockData';
+import type { Guest, CreateGuestPayload } from '@/types/eventDetail';
 
 interface GuestModalProps {
   isOpen: boolean;
   onClose: () => void;
   guest?: Guest | null;
-  onSave?: (guestData: Partial<Guest>) => void;
+  onSave?: (guestData: CreateGuestPayload) => void;
   isAdding?: boolean;
   mode?: 'edit' | 'view';
 }
@@ -24,12 +23,11 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
     name: '',
     paternalSurname: '',
     maternalSurname: '',
-    stateCode: '55',
-    phone: '',
-    escortCount: 0,
-    assistance: 'Pending' as 'Confirmed' | 'Cancelled' | 'Pending' | 'Not coming',
-    confirmationEmailSent: false,
-    personalMessage: ''
+    phoneNumber: '',
+    assistance: 0, // 0: Sin confirmar, 1: Confirmado, 2: No asistirá
+    escorts: 0,
+    personalMessage: '',
+    notes: ''
   });
 
   useEffect(() => {
@@ -38,24 +36,22 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
         name: guest.name || '',
         paternalSurname: guest.paternalSurname || '',
         maternalSurname: guest.maternalSurname || '',
-        stateCode: guest.stateCode || '55',
-        phone: guest.phone || '',
-        escortCount: guest.escortCount || 0,
-        assistance: guest.assistance || 'Pending' as 'Confirmed' | 'Cancelled' | 'Pending' | 'Not coming',
-        confirmationEmailSent: guest.confirmationEmailSent || false,
-        personalMessage: guest.personalMessage || ''
+        phoneNumber: guest.phoneNumber || '',
+        assistance: guest.assistance ?? 0,
+        escorts: guest.escorts || 0,
+        personalMessage: guest.personalMessage || '',
+        notes: guest.notes || ''
       });
     } else {
       setFormData({
         name: '',
         paternalSurname: '',
         maternalSurname: '',
-        stateCode: '55',
-        phone: '',
-        escortCount: 0,
-        assistance: 'Pending' as 'Confirmed' | 'Cancelled' | 'Pending' | 'Not coming',
-        confirmationEmailSent: false,
-        personalMessage: ''
+        phoneNumber: '',
+        assistance: 0,
+        escorts: 0,
+        personalMessage: '',
+        notes: ''
       });
     }
   }, [guest, isOpen, isAdding]);
@@ -63,12 +59,16 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
   const handleSave = () => {
     if (isViewMode || !onSave) return;
     
-    if (!formData.name.trim() || !formData.paternalSurname.trim() || !formData.phone.trim()) {
+    if (!formData.name.trim() || !formData.paternalSurname.trim() || !formData.phoneNumber.trim()) {
       return;
     }
 
-    const phoneRegex = /^[\d\s\-]+$/;
-    if (!phoneRegex.test(formData.phone)) {
+    const phoneRegex = /^\+?[\d\s\-]+$/;
+    if (!phoneRegex.test(formData.phoneNumber)) {
+      return;
+    }
+
+    if (formData.escorts < 0) {
       return;
     }
 
@@ -77,12 +77,11 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
       name: '',
       paternalSurname: '',
       maternalSurname: '',
-      stateCode: '55',
-      phone: '',
-      escortCount: 0,
-      assistance: 'Pending' as 'Confirmed' | 'Cancelled' | 'Pending' | 'Not coming',
-      confirmationEmailSent: false,
-      personalMessage: ''
+      phoneNumber: '',
+      assistance: 0,
+      escorts: 0,
+      personalMessage: '',
+      notes: ''
     });
     onClose();
   };
@@ -92,12 +91,11 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
       name: guest?.name || '',
       paternalSurname: guest?.paternalSurname || '',
       maternalSurname: guest?.maternalSurname || '',
-      stateCode: guest?.stateCode || '55',
-      phone: guest?.phone || '',
-      escortCount: guest?.escortCount || 0,
-      assistance: guest?.assistance || 'Pending' as 'Confirmed' | 'Cancelled' | 'Pending' | 'Not coming',
-      confirmationEmailSent: guest?.confirmationEmailSent || false,
-      personalMessage: guest?.personalMessage || ''
+      phoneNumber: guest?.phoneNumber || '',
+      assistance: guest?.assistance ?? 0,
+      escorts: guest?.escorts || 0,
+      personalMessage: guest?.personalMessage || '',
+      notes: guest?.notes || ''
     });
     onClose();
   };
@@ -155,14 +153,14 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">
-                Telefono *
+              <Label htmlFor="phoneNumber">
+                Teléfono *
               </Label>
               <Input
-                id="phone"
-                value={formData.phone}
-                onChange={isViewMode ? undefined : (e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder={isViewMode ? undefined : "Ingresa el número sin LADA"}
+                id="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={isViewMode ? undefined : (e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                placeholder={isViewMode ? undefined : "+521234567890"}
                 required={!isViewMode}
                 disabled={isViewMode}
               />
@@ -171,28 +169,6 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="stateCode">
-                Código de área (LADA) *
-              </Label>
-              {isViewMode ? (
-                <Input value={formData.stateCode} disabled />
-              ) : (
-                <Select value={formData.stateCode} onValueChange={(value) => setFormData({ ...formData, stateCode: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="55">55</SelectItem>
-                    <SelectItem value="33">33</SelectItem>
-                    <SelectItem value="81">81</SelectItem>
-                    <SelectItem value="444">444</SelectItem>
-                    <SelectItem value="477">477</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="assistance">
                 Asistencia
               </Label>
@@ -200,75 +176,66 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
                 <div className="h-10 flex items-center">
                   <Badge 
                     variant={
-                      formData.assistance === 'Confirmed' ? 'default' : 
-                      formData.assistance === 'Cancelled' || formData.assistance === 'Not coming' ? 'destructive' : 
+                      formData.assistance === 1 ? 'default' : 
+                      formData.assistance === 2 ? 'destructive' : 
                       'secondary'
                     }
                   >
-                    {formData.assistance}
+                    {formData.assistance === 1 ? 'Confirmado' : formData.assistance === 2 ? 'No asistirá' : 'Sin confirmar'}
                   </Badge>
                 </div>
               ) : (
-                <Select value={formData.assistance} onValueChange={(value: any) => setFormData({ ...formData, assistance: value })}>
+                <Select value={formData.assistance.toString()} onValueChange={(value) => setFormData({ ...formData, assistance: parseInt(value) })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Pending">Pendiente</SelectItem>
-                    <SelectItem value="Confirmed">Confirmado</SelectItem>
-                    <SelectItem value="Cancelled">Cancelado</SelectItem>
-                    <SelectItem value="Not coming">No asistirá</SelectItem>
+                    <SelectItem value="0">Sin confirmar</SelectItem>
+                    <SelectItem value="1">Confirmado</SelectItem>
+                    <SelectItem value="2">No asistirá</SelectItem>
                   </SelectContent>
                 </Select>
               )}
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="escortCount">
+              <Label htmlFor="escorts">
                 Acompañantes
               </Label>
               <Input
-                id="escortCount"
+                id="escorts"
                 type="number"
                 min="0"
-                value={formData.escortCount}
-                onChange={isViewMode ? undefined : (e) => setFormData({ ...formData, escortCount: parseInt(e.target.value) || 0 })}
+                value={formData.escorts}
+                onChange={isViewMode ? undefined : (e) => setFormData({ ...formData, escorts: parseInt(e.target.value) || 0 })}
                 disabled={isViewMode}
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirmationEmailSent">
-                Confirmacion
-              </Label>
-              {isViewMode ? (
-                <div className="h-10 flex items-center">
-                  <span className="text-sm">{formData.confirmationEmailSent ? 'Sí' : 'No'}</span>
-                </div>
-              ) : (
-                <div className="flex items-center space-x-2 h-10">
-                  <Checkbox
-                    id="confirmationEmailSent"
-                    checked={formData.confirmationEmailSent}
-                    onCheckedChange={(checked) => setFormData({ ...formData, confirmationEmailSent: !!checked })}
-                  />
-                  <span className="text-sm text-muted-foreground">Correo de confirmación enviado</span>
-                </div>
-              )}
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="personalMessage">
-              Mensaje personal
+              Mensaje Personal
             </Label>
             <Textarea
               id="personalMessage"
               value={formData.personalMessage}
               onChange={isViewMode ? undefined : (e) => setFormData({ ...formData, personalMessage: e.target.value })}
-              placeholder={isViewMode ? undefined : "Mensaje personal opcional para el invitado..."}
+              placeholder={isViewMode ? undefined : "Mensaje personal opcional..."}
+              className={isViewMode ? "min-h-[80px] resize-none" : "min-h-[80px] resize-y"}
+              disabled={isViewMode}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="notes">
+              Notas
+            </Label>
+            <Textarea
+              id="notes"
+              value={formData.notes}
+              onChange={isViewMode ? undefined : (e) => setFormData({ ...formData, notes: e.target.value })}
+              placeholder={isViewMode ? undefined : "Notas sobre el invitado..."}
               className={isViewMode ? "min-h-[80px] resize-none" : "min-h-[80px] resize-y"}
               disabled={isViewMode}
             />
