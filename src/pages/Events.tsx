@@ -66,7 +66,7 @@ const Events = () => {
         variant: 'destructive',
       });
     } finally {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 300);
     }
   };
 
@@ -298,6 +298,7 @@ const Events = () => {
               data={events}
               searchPlaceholder="Buscar..."
               onGlobalFilterChange={setSearchKeyword}
+              isLoading={loading}
               actionButton={
                 profile === 'ADMIN' ? (
                   <Button 

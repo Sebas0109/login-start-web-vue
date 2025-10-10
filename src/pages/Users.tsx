@@ -66,7 +66,7 @@ const Users = () => {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setTimeout(() => setIsLoading(false), 300);
     }
   };
 
@@ -252,6 +252,7 @@ const Users = () => {
               data={users} 
               searchPlaceholder="Buscar usuarios..."
               onGlobalFilterChange={setSearchKeyword}
+              isLoading={isLoading}
             />
           </CardContent>
         </Card>
