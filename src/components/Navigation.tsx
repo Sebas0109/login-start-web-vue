@@ -16,14 +16,9 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
 
-type Role = "ADMIN" | "CLIENT";
+interface NavigationProps {}
 
-interface NavigationProps {
-  currentRole: Role;
-  onRoleChange: (role: Role) => void;
-}
-
-const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
+const Navigation = ({}: NavigationProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { clearAuth, profile, userId } = useAuth();
@@ -39,19 +34,15 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
     { id: 5, text: "Sincronización de calendario completada", time: "hace 20 min" },
   ];
 
-  const adminMenuItems = [
+  const menuItems = profile === "ADMIN" ? [
     { name: "Eventos", path: "/events" },
     { name: "Catalogos", path: "/catalogs" },
     { name: "Usuarios", path: "/users" },
     { name: "Calendario", path: "/calendar" },
-  ];
-
-  const clientMenuItems = [
+  ] : [
     { name: "Eventos", path: "/events" },
     { name: "Calendario", path: "/calendar" },
   ];
-
-  const menuItems = currentRole === "ADMIN" ? adminMenuItems : clientMenuItems;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -130,21 +121,8 @@ const Navigation = ({ currentRole, onRoleChange }: NavigationProps) => {
             ))}
           </div>
 
-          {/* Right: Notifications, Role Switcher and User Profile */}
+          {/* Right: Notifications and User Profile */}
           <div className="flex items-center space-x-4">
-            {/* Dev Role Switcher */}
-            <div className="flex items-center space-x-2 px-3 py-1 rounded-md bg-secondary/30 border border-border/30">
-              <span className="text-xs text-muted-foreground">Role:</span>
-              <select
-                value={currentRole}
-                onChange={(e) => onRoleChange(e.target.value as Role)}
-                className="text-xs bg-transparent border-none outline-none text-foreground"
-              >
-                <option value="ADMIN">ADMIN</option>
-                <option value="CLIENT">CLIENT</option>
-              </select>
-            </div>
-
             {/* Notification Bell */}
             <div className="relative" ref={dropdownRef}>
               <Button
