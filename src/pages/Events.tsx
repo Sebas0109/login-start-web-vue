@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { useNavigate, useOutletContext } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { ColumnDef } from '@tanstack/react-table';
 import { Eye, Edit, Trash2, Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +24,7 @@ import * as eventsService from '@/services/eventsService';
 import { useToast } from '@/hooks/use-toast';
 
 const Events = () => {
-  const { currentRole } = useOutletContext<{ currentRole: 'ADMIN' | 'CLIENT' }>();
+  const { profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [events, setEvents] = useState<EventDto[]>([]);
@@ -213,7 +214,7 @@ const Events = () => {
     ];
 
     // Add Owner Name column only for ADMIN
-    if (currentRole === 'ADMIN') {
+    if (profile === 'ADMIN') {
       baseColumns.push({
         accessorKey: 'userDto.person.name',
         header: 'Cliente',
@@ -245,8 +246,8 @@ const Events = () => {
                <DropdownMenuItem onClick={() => handleViewEvent(event.id)}>
                  <Eye className="mr-2 h-4 w-4" />
                  Ver
-               </DropdownMenuItem>
-               {currentRole === 'ADMIN' && (
+                </DropdownMenuItem>
+               {profile === 'ADMIN' && (
                  <DropdownMenuItem onClick={() => navigate(`/events/${event.id}/edit`)}>
                    <Edit className="mr-2 h-4 w-4" />
                    Actualizar
@@ -282,7 +283,7 @@ const Events = () => {
     });
 
     return baseColumns;
-  }, [currentRole]);
+  }, [profile]);
 
   return (
     <div className="min-h-screen bg-gradient-secondary p-6">
@@ -298,7 +299,7 @@ const Events = () => {
               searchPlaceholder="Buscar..."
               onGlobalFilterChange={setSearchKeyword}
               actionButton={
-                currentRole === 'ADMIN' ? (
+                profile === 'ADMIN' ? (
                   <Button 
                     onClick={() => navigate('/events/new/edit')}
                     className="bg-primary text-primary-foreground hover:bg-primary/90"
