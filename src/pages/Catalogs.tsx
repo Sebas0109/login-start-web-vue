@@ -54,7 +54,7 @@ const Catalogs = () => {
 
   useEffect(() => {
     loadCatalogData();
-  }, [activeTab, pagination.page]);
+  }, [activeTab, pagination.page, pagination.size]);
 
   const loadCatalogData = async () => {
     setIsLoading(true);
@@ -438,6 +438,12 @@ const Catalogs = () => {
                   columns={eventGroupColumns}
                   data={eventGroups}
                   searchPlaceholder="Buscar tipos de evento..."
+                  isLoading={isLoading}
+                  onPageChange={(page) => setPagination(prev => ({ ...prev, page }))}
+                  onPageSizeChange={(size) => setPagination(prev => ({ ...prev, page: 0, size }))}
+                  totalPages={pagination.totalPages}
+                  currentPage={pagination.page}
+                  currentPageSize={pagination.size}
                 />
               </TabsContent>
               
@@ -455,6 +461,12 @@ const Catalogs = () => {
                   columns={guestTypeColumns}
                   data={guestTypes}
                   searchPlaceholder="Buscar tipos de invitado..."
+                  isLoading={isLoading}
+                  onPageChange={(page) => setPagination(prev => ({ ...prev, page }))}
+                  onPageSizeChange={(size) => setPagination(prev => ({ ...prev, page: 0, size }))}
+                  totalPages={pagination.totalPages}
+                  currentPage={pagination.page}
+                  currentPageSize={pagination.size}
                 />
               </TabsContent>
               
@@ -472,6 +484,12 @@ const Catalogs = () => {
                   columns={addonColumns}
                   data={addons}
                   searchPlaceholder="Buscar extras..."
+                  isLoading={isLoading}
+                  onPageChange={(page) => setPagination(prev => ({ ...prev, page }))}
+                  onPageSizeChange={(size) => setPagination(prev => ({ ...prev, page: 0, size }))}
+                  totalPages={pagination.totalPages}
+                  currentPage={pagination.page}
+                  currentPageSize={pagination.size}
                 />
               </TabsContent>
             </Tabs>
