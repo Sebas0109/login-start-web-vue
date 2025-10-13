@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addDays, startOfWeek, endOfWeek } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -6,28 +6,157 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useMockData } from '@/hooks/useMockData';
-import { Event } from '@/data/mockData';
+import { getCalendarEvents, CalendarEventDto, getEventById } from '@/services/calendarService';
+import { EventDto } from '@/types/event';
 import EventModal from '@/components/EventModal';
+import { useToast } from '@/hooks/use-toast';
 
 type CalendarView = 'today' | 'week' | 'month' | 'agenda';
 
+interface CalendarEvent {
+  id: string;
+  name: string;
+  date: string;
+  time: string;
+  ownerName: string;
+  package: string;
+  eventGroup: string;
+}
+
 const Calendar = () => {
   const navigate = useNavigate();
-  const { events } = useMockData();
+  const { toast } = useToast();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<CalendarView>('month');
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [loading, setLoading] = useState(false);
+  const cacheRef = useRef<{ [key: string]: CalendarEvent[] }>({});
+  const loadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const getEventsForDate = (date: Date): Event[] => {
+  const loadEvents = useCallback(async (dateBegin: string, dateEnd: string) => {
+    const cacheKey = `${dateBegin}_${dateEnd}`;
+    
+    // Check cache first
+    if (cacheRef.current[cacheKey]) {
+      setEvents(cacheRef.current[cacheKey]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const data = await getCalendarEvents({ dateBegin, dateEnd });
+      
+      // Transform backend data to calendar events
+      const calendarEvents: CalendarEvent[] = data.map((item: CalendarEventDto) => ({
+        id: item.id,
+        name: '', // Will be loaded on demand
+        date: item.date,
+        time: item.time,
+        ownerName: '',
+        package: '',
+        eventGroup: ''
+      }));
+      
+      cacheRef.current[cacheKey] = calendarEvents;
+      setEvents(calendarEvents);
+    } catch (error) {
+      console.error('Error loading calendar events:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudieron cargar los eventos',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  const refreshCalendar = useCallback(() => {
+    // Clear cache and reload current range
+    cacheRef.current = {};
+    const { dateBegin, dateEnd } = getDateRange();
+    loadEvents(dateBegin, dateEnd);
+  }, [loadEvents]);
+
+  const getDateRange = useCallback(() => {
+    let start: Date;
+    let end: Date;
+
+    if (view === 'today') {
+      start = currentDate;
+      end = currentDate;
+    } else if (view === 'week') {
+      start = startOfWeek(currentDate);
+      end = endOfWeek(currentDate);
+    } else if (view === 'month') {
+      const monthStart = startOfMonth(currentDate);
+      const monthEnd = endOfMonth(currentDate);
+      start = startOfWeek(monthStart);
+      end = endOfWeek(monthEnd);
+    } else { // agenda
+      start = new Date();
+      end = addDays(new Date(), 90); // Load next 90 days
+    }
+
+    return {
+      dateBegin: format(start, 'yyyy-MM-dd'),
+      dateEnd: format(end, 'yyyy-MM-dd')
+    };
+  }, [currentDate, view]);
+
+  useEffect(() => {
+    // Debounce loading
+    if (loadTimeoutRef.current) {
+      clearTimeout(loadTimeoutRef.current);
+    }
+
+    loadTimeoutRef.current = setTimeout(() => {
+      const { dateBegin, dateEnd } = getDateRange();
+      loadEvents(dateBegin, dateEnd);
+    }, 300);
+
+    return () => {
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+      }
+    };
+  }, [currentDate, view, getDateRange, loadEvents]);
+
+  const getEventsForDate = (date: Date): CalendarEvent[] => {
     return events.filter(event => 
       isSameDay(new Date(event.date), date)
     );
   };
 
-  const handleEventClick = (event: Event) => {
-    setSelectedEvent(event);
+  const handleEventClick = async (event: CalendarEvent) => {
+    // If event details are not loaded, fetch them
+    if (!event.name) {
+      try {
+        const fullEvent = await getEventById(event.id);
+        const enrichedEvent: CalendarEvent = {
+          id: fullEvent.id,
+          name: fullEvent.title,
+          date: fullEvent.date,
+          time: fullEvent.time,
+          ownerName: fullEvent.userDto?.person?.name || '',
+          package: fullEvent._packageDto?.title || '',
+          eventGroup: fullEvent.eventGroupDto?.title || ''
+        };
+        setSelectedEvent(enrichedEvent);
+      } catch (error) {
+        console.error('Error loading event details:', error);
+        toast({
+          title: 'Error',
+          description: 'No se pudieron cargar los detalles del evento',
+          variant: 'destructive'
+        });
+        return;
+      }
+    } else {
+      setSelectedEvent(event);
+    }
     setIsModalOpen(true);
   };
 
@@ -73,8 +202,10 @@ const Calendar = () => {
         </div>
         
         <div className="space-y-2">
-          {todayEvents.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">No events scheduled for this day</p>
+          {loading ? (
+            <p className="text-muted-foreground text-center py-8">Cargando eventos...</p>
+          ) : todayEvents.length === 0 ? (
+            <p className="text-muted-foreground text-center py-8">No hay eventos en este rango</p>
           ) : (
             todayEvents.map(event => (
               <Card
@@ -84,10 +215,9 @@ const Calendar = () => {
               >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-medium">{event.name}</h4>
-                    <Badge variant="outline">{event.eventGroup}</Badge>
+                    <h4 className="font-medium">{event.time}</h4>
+                    <Badge variant="outline">Ver detalles</Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">{event.ownerName}</p>
                 </CardContent>
               </Card>
             ))
@@ -235,34 +365,30 @@ const Calendar = () => {
 
     return (
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Upcoming Events</h3>
+        <h3 className="text-lg font-semibold">Próximos Eventos</h3>
         <div className="space-y-2">
-          {sortedEvents.slice(0, 20).map(event => (
-            <Card
-              key={event.id}
-              className="cursor-pointer hover:bg-accent/30 transition-smooth bg-gradient-card backdrop-blur-lg border-border/30"
-              onClick={() => handleEventClick(event)}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-medium">{event.name}</h4>
-                    <p className="text-sm text-muted-foreground">{format(new Date(event.date), 'EEEE, MMMM d, yyyy')}</p>
+          {loading ? (
+            <p className="text-muted-foreground text-center py-8">Cargando eventos...</p>
+          ) : sortedEvents.length === 0 ? (
+            <p className="text-muted-foreground text-center py-8">No hay eventos en este rango</p>
+          ) : (
+            sortedEvents.slice(0, 20).map(event => (
+              <Card
+                key={event.id}
+                className="cursor-pointer hover:bg-accent/30 transition-smooth bg-gradient-card backdrop-blur-lg border-border/30"
+                onClick={() => handleEventClick(event)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-medium">{format(new Date(event.date), 'EEEE, MMMM d, yyyy')} - {event.time}</h4>
+                    </div>
+                    <Badge variant="outline">Ver detalles</Badge>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Badge variant="outline">{event.eventGroup}</Badge>
-                    <Badge className={
-                      event.package === 'premium' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' :
-                      event.package === 'classic' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' :
-                      'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
-                    }>
-                      {event.package}
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
       </div>
     );
@@ -308,6 +434,7 @@ const Calendar = () => {
         event={selectedEvent}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+        onRefresh={refreshCalendar}
       />
     </div>
   );

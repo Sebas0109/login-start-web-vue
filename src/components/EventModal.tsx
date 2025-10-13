@@ -21,20 +21,32 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Event } from '@/data/mockData';
-import { useMockData } from '@/hooks/useMockData';
+import { deleteEvent } from '@/services/calendarService';
+import { useToast } from '@/hooks/use-toast';
+
+interface Event {
+  id: string;
+  name: string;
+  date: string;
+  time: string;
+  ownerName?: string;
+  package?: string;
+  eventGroup?: string;
+}
 
 interface EventModalProps {
   event: Event | null;
   isOpen: boolean;
   onClose: () => void;
+  onRefresh?: () => void;
 }
 
-const EventModal: React.FC<EventModalProps> = ({ event, isOpen, onClose }) => {
+const EventModal: React.FC<EventModalProps> = ({ event, isOpen, onClose, onRefresh }) => {
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const { deleteEvent } = useMockData();
+  const { toast } = useToast();
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   if (!event) return null;
 
@@ -48,10 +60,29 @@ const EventModal: React.FC<EventModalProps> = ({ event, isOpen, onClose }) => {
     navigate(`/events/${event.id}/edit`);
   };
 
-  const handleDelete = () => {
-    deleteEvent(event.id);
-    setShowDeleteDialog(false);
-    onClose();
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const response = await deleteEvent(event.id);
+      toast({
+        title: 'Éxito',
+        description: response || 'Evento Borrado Exitosamente'
+      });
+      setShowDeleteDialog(false);
+      onClose();
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudo borrar el evento',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const getPackageBadgeColor = (packageType: string) => {
@@ -144,9 +175,13 @@ const EventModal: React.FC<EventModalProps> = ({ event, isOpen, onClose }) => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
-              Borrar
+            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete} 
+              className="bg-destructive text-destructive-foreground"
+              disabled={isDeleting}
+            >
+              {isDeleting ? 'Borrando...' : 'Borrar'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
