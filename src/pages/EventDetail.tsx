@@ -434,6 +434,14 @@ const EventDetail = () => {
               searchPlaceholder="Buscar..."
               onGlobalFilterChange={setKeyword}
               isLoading={loading}
+              onPageChange={(page) => setCurrentPage(page)}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(0);
+              }}
+              totalPages={totalPages}
+              currentPage={currentPage}
+              currentPageSize={pageSize}
             />
           </CardContent>
         </Card>

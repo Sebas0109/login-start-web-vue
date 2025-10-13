@@ -253,6 +253,11 @@ const Users = () => {
               searchPlaceholder="Buscar usuarios..."
               onGlobalFilterChange={setSearchKeyword}
               isLoading={isLoading}
+              onPageChange={(page) => setPagination(prev => ({ ...prev, page }))}
+              onPageSizeChange={(size) => setPagination(prev => ({ ...prev, page: 0, size }))}
+              totalPages={pagination.totalPages}
+              currentPage={pagination.page}
+              currentPageSize={pagination.size}
             />
           </CardContent>
         </Card>

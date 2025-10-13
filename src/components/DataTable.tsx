@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -30,6 +30,11 @@ interface DataTableProps<TData, TValue> {
   onGlobalFilterChange?: (value: string) => void;
   actionButton?: React.ReactNode;
   isLoading?: boolean;
+  onPageChange?: (page: number) => void;
+  onPageSizeChange?: (size: number) => void;
+  totalPages?: number;
+  currentPage?: number;
+  currentPageSize?: number;
 }
 
 export function DataTable<TData, TValue>({
@@ -39,14 +44,29 @@ export function DataTable<TData, TValue>({
   onGlobalFilterChange,
   actionButton,
   isLoading = false,
+  onPageChange,
+  onPageSizeChange,
+  totalPages,
+  currentPage,
+  currentPageSize,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 10,
+    pageIndex: currentPage ?? 0,
+    pageSize: currentPageSize ?? 10,
   });
+
+  // Sync internal pagination with external props
+  useEffect(() => {
+    if (currentPage !== undefined || currentPageSize !== undefined) {
+      setPagination({
+        pageIndex: currentPage ?? 0,
+        pageSize: currentPageSize ?? 10,
+      });
+    }
+  }, [currentPage, currentPageSize]);
 
   const table = useReactTable({
     data,
@@ -71,6 +91,25 @@ export function DataTable<TData, TValue>({
     setGlobalFilter(value);
     onGlobalFilterChange?.(value);
   };
+
+  const handlePageSizeChange = (size: number) => {
+    table.setPageSize(size);
+    onPageSizeChange?.(size);
+  };
+
+  const handlePreviousPage = () => {
+    const newPage = table.getState().pagination.pageIndex - 1;
+    table.previousPage();
+    onPageChange?.(newPage);
+  };
+
+  const handleNextPage = () => {
+    const newPage = table.getState().pagination.pageIndex + 1;
+    table.nextPage();
+    onPageChange?.(newPage);
+  };
+
+  const displayTotalPages = totalPages ?? table.getPageCount();
 
   return (
     <div className="space-y-4">
@@ -181,7 +220,7 @@ export function DataTable<TData, TValue>({
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
-              table.setPageSize(Number(value));
+              handlePageSizeChange(Number(value));
             }}
           >
             <SelectTrigger className="h-8 w-[70px]">
@@ -199,13 +238,13 @@ export function DataTable<TData, TValue>({
         <div className="flex items-center space-x-6 lg:space-x-8">
           <div className="flex w-[100px] items-center justify-center text-sm font-medium">
             Página {table.getState().pagination.pageIndex + 1} de{" "}
-            {table.getPageCount()}
+            {displayTotalPages}
           </div>
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              onClick={() => table.previousPage()}
+              onClick={handlePreviousPage}
               disabled={!table.getCanPreviousPage()}
             >
               <ChevronDown className="h-4 w-4 rotate-90" />
@@ -213,7 +252,7 @@ export function DataTable<TData, TValue>({
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              onClick={() => table.nextPage()}
+              onClick={handleNextPage}
               disabled={!table.getCanNextPage()}
             >
               <ChevronDown className="h-4 w-4 -rotate-90" />

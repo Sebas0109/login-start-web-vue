@@ -299,6 +299,11 @@ const Events = () => {
               searchPlaceholder="Buscar..."
               onGlobalFilterChange={setSearchKeyword}
               isLoading={loading}
+              onPageChange={(page) => setPagination(prev => ({ ...prev, page }))}
+              onPageSizeChange={(size) => setPagination(prev => ({ ...prev, page: 0, size }))}
+              totalPages={pagination.totalPages}
+              currentPage={pagination.page}
+              currentPageSize={pagination.size}
               actionButton={
                 profile === 'ADMIN' ? (
                   <Button 
