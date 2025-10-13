@@ -1,7 +1,8 @@
 import React from 'react';
-import { useNavigate, useOutletContext } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { X, Eye, Edit, Trash2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   Dialog,
   DialogContent,
@@ -31,7 +32,7 @@ interface EventModalProps {
 
 const EventModal: React.FC<EventModalProps> = ({ event, isOpen, onClose }) => {
   const navigate = useNavigate();
-  const { currentRole } = useOutletContext<{ currentRole: 'ADMIN' | 'CLIENT' }>();
+  const { profile } = useAuth();
   const { deleteEvent } = useMockData();
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
 
@@ -84,7 +85,7 @@ const EventModal: React.FC<EventModalProps> = ({ event, isOpen, onClose }) => {
               </p>
             </div>
 
-            {currentRole === 'ADMIN' && (
+            {profile === 'ADMIN' && (
               <div>
                 <p className="text-sm font-medium text-foreground mb-1">Cliente</p>
                 <p className="text-sm text-muted-foreground">{event.ownerName}</p>
@@ -108,7 +109,7 @@ const EventModal: React.FC<EventModalProps> = ({ event, isOpen, onClose }) => {
                 Ver
               </Button>
               
-              {currentRole === 'ADMIN' && (
+              {profile === 'ADMIN' && (
                 <>
                   <Button
                     onClick={handleUpdate}
