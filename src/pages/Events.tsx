@@ -253,29 +253,31 @@ const Events = () => {
                    Actualizar
                  </DropdownMenuItem>
                )}
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Borrar
-                  </DropdownMenuItem>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="bg-gradient-card backdrop-blur-lg border-border/50">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Esta acción no se puede deshacer. Esto eliminará permanentemente el evento
-                      "{event.title}".
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handleDeleteEvent(event.id)}>
+              {profile === 'ADMIN' && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <Trash2 className="mr-2 h-4 w-4" />
                       Borrar
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="bg-gradient-card backdrop-blur-lg border-border/50">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esta acción no se puede deshacer. Esto eliminará permanentemente el evento
+                        "{event.title}".
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDeleteEvent(event.id)}>
+                        Borrar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         );
