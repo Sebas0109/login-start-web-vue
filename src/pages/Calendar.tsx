@@ -132,15 +132,20 @@ const Calendar = () => {
 
   const handleEventClick = async (event: CalendarEvent) => {
     // If event details are not loaded, fetch them
-    if (!event.name) {
+    if (!event.ownerName || !event.package || !event.eventGroup) {
       try {
         const fullEvent = await getEventById(event.id);
+        const person = fullEvent.userDto?.person;
+        const ownerName = person 
+          ? `${person.paternalSurname || ''} ${person.maternalSurname || ''} ${person.name || ''}`.trim()
+          : '';
+        
         const enrichedEvent: CalendarEvent = {
           id: fullEvent.id,
           name: fullEvent.title,
           date: fullEvent.date,
           time: fullEvent.time,
-          ownerName: fullEvent.userDto?.person?.name || '',
+          ownerName,
           package: fullEvent._packageDto?.title || '',
           eventGroup: fullEvent.eventGroupDto?.title || ''
         };
