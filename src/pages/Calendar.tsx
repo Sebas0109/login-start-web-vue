@@ -51,7 +51,7 @@ const Calendar = () => {
       // Transform backend data to calendar events
       const calendarEvents: CalendarEvent[] = data.map((item: CalendarEventDto) => ({
         id: item.id,
-        name: '', // Will be loaded on demand
+        name: item.title,
         date: item.date,
         time: item.time,
         ownerName: '',

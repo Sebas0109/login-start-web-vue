@@ -4,6 +4,7 @@ export interface CalendarEventDto {
   id: string;
   date: string; // YYYY-MM-DD
   time: string; // HH:mm
+  title: string;
 }
 
 export interface CalendarParams {
