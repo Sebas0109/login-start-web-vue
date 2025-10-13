@@ -59,13 +59,16 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
   const handleSave = () => {
     if (isViewMode || !onSave) return;
     
-    if (!formData.name.trim() || !formData.paternalSurname.trim() || !formData.phoneNumber.trim()) {
+    if (!formData.name.trim() || !formData.paternalSurname.trim()) {
       return;
     }
 
-    const phoneRegex = /^\+?[\d\s\-]+$/;
-    if (!phoneRegex.test(formData.phoneNumber)) {
-      return;
+    // Validate phone number only if it's provided
+    if (formData.phoneNumber.trim()) {
+      const phoneRegex = /^\+?[\d\s\-]+$/;
+      if (!phoneRegex.test(formData.phoneNumber)) {
+        return;
+      }
     }
 
     if (formData.escorts < 0) {
@@ -154,14 +157,13 @@ export const GuestModal = ({ isOpen, onClose, guest, onSave, isAdding = false, m
 
             <div className="space-y-2">
               <Label htmlFor="phoneNumber">
-                Teléfono *
+                Teléfono
               </Label>
               <Input
                 id="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={isViewMode ? undefined : (e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                 placeholder={isViewMode ? undefined : "+521234567890"}
-                required={!isViewMode}
                 disabled={isViewMode}
               />
             </div>
