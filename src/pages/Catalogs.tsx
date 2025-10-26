@@ -342,25 +342,7 @@ const Catalogs = () => {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction onClick={async () => {
-                      setIsLoading(true);
-                      try {
-                        const response = await catalogsService.deleteCatalog('addon', addon.id);
-                        toast({
-                          title: "Éxito",
-                          description: response,
-                        });
-                        loadCatalogData();
-                      } catch (error) {
-                        toast({
-                          title: "Error",
-                          description: error instanceof Error ? error.message : "Error al borrar",
-                          variant: "destructive",
-                        });
-                      } finally {
-                        setIsLoading(false);
-                      }
-                    }}>
+                    <AlertDialogAction onClick={() => handleDelete(addon.id)}>
                       Borrar
                     </AlertDialogAction>
                   </AlertDialogFooter>
