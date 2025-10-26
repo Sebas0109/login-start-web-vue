@@ -147,48 +147,17 @@ const Events = () => {
       {
         accessorKey: 'notificationEmails',
         header: 'Correos',
+        size: 150,
         cell: ({ row }) => {
           const emails = row.getValue('notificationEmails') as string[];
-          if (emails.length === 1) {
-            return (
-              <div className="max-w-[200px] overflow-x-auto">
-                <Badge variant="outline">{emails[0]}</Badge>
-              </div>
-            );
-          }
-          if (emails.length <= 2) {
-            return (
-              <div className="max-w-[200px] overflow-x-auto">
-                <div className="flex gap-1 min-w-max">
-                  {emails.map((email, index) => (
-                    <Badge key={index} variant="outline" className="text-xs whitespace-nowrap">
-                      {email}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            );
-          }
           return (
-            <div className="max-w-[200px] overflow-x-auto">
+            <div className="max-w-[150px] overflow-x-auto">
               <div className="flex gap-1 min-w-max">
-                <Badge variant="outline" className="text-xs whitespace-nowrap">{emails[0]}</Badge>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Badge variant="secondary" className="text-xs cursor-help whitespace-nowrap">
-                        +{emails.length - 1} más
-                      </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <div className="space-y-1">
-                        {emails.slice(1).map((email, index) => (
-                          <p key={index} className="text-xs">{email}</p>
-                        ))}
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                {emails.map((email, index) => (
+                  <Badge key={index} variant="outline" className="text-xs whitespace-nowrap">
+                    {email}
+                  </Badge>
+                ))}
               </div>
             </div>
           );
