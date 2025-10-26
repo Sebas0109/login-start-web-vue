@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
+import { usersService } from "@/services/usersService";
 import logo from "@/assets/logo.png";
 
 interface NavigationProps {}
@@ -24,6 +25,7 @@ const Navigation = ({}: NavigationProps) => {
   const { clearAuth, profile, userId } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
+  const [userName, setUserName] = useState<string>("");
   const dropdownRef = useRef<HTMLDivElement>(null);
   
   const mockNotifications = [
@@ -43,6 +45,22 @@ const Navigation = ({}: NavigationProps) => {
     { name: "Eventos", path: "/events" },
     { name: "Calendario", path: "/calendar" },
   ];
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      if (userId) {
+        try {
+          const user = await usersService.getUserById(userId);
+          const fullName = `${user.person.name} ${user.person.paternalSurname}`.trim();
+          setUserName(fullName);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      }
+    };
+
+    fetchUserName();
+  }, [userId]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -87,7 +105,9 @@ const Navigation = ({}: NavigationProps) => {
   };
 
   // Get user initials for avatar
-  const userInitials = profile ? profile.substring(0, 2).toUpperCase() : "U";
+  const userInitials = userName
+    ? userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+    : profile?.substring(0, 2).toUpperCase() || "U";
 
   return (
     <nav className="sticky top-0 z-50 bg-gradient-card backdrop-blur-lg border-b border-border/50">
@@ -179,9 +199,9 @@ const Navigation = ({}: NavigationProps) => {
               <DropdownMenuContent className="w-56 bg-gradient-card backdrop-blur-lg border-border/50" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none text-foreground">{profile || "Usuario"}</p>
+                    <p className="text-sm font-medium leading-none text-foreground">{userName || "Usuario"}</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      ID: {userId || "N/A"}
+                      {profile}
                     </p>
                   </div>
                 </DropdownMenuLabel>
