@@ -112,6 +112,16 @@ export const UserModal = ({ user, isOpen, onClose, onSave, mode = 'edit', existi
       }
     }
 
+    // Password validation for edit mode (when changing password)
+    if (mode === 'edit' && (passwordData.password || passwordData.confirmPassword)) {
+      if (passwordData.password && passwordData.password.length < 8) {
+        newErrors.password = 'La contraseña debe tener al menos 8 caracteres';
+      }
+      if (passwordData.password !== passwordData.confirmPassword) {
+        newErrors.confirmPassword = 'Las contraseñas no coinciden';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
