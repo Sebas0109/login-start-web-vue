@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface UserModalProps {
@@ -38,6 +38,8 @@ export const UserModal = ({ user, isOpen, onClose, onSave, mode = 'edit', existi
     password: '',
     confirmPassword: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     if (mode === 'create') {
@@ -287,26 +289,44 @@ export const UserModal = ({ user, isOpen, onClose, onSave, mode = 'edit', existi
                 {/* New Password */}
                 <div className="space-y-2">
                   <Label>Nueva contraseña *</Label>
-                  <Input
-                    type="password"
-                    value={passwordData.password}
-                    onChange={(e) => handlePasswordChange('password', e.target.value)}
-                    className={errors.password ? 'border-destructive' : ''}
-                    placeholder="Ingresa la contraseña"
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      value={passwordData.password}
+                      onChange={(e) => handlePasswordChange('password', e.target.value)}
+                      className={`pr-10 ${errors.password ? 'border-destructive' : ''}`}
+                      placeholder="Ingresa la contraseña"
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                   {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                 </div>
 
                 {/* Confirm Password */}
                 <div className="space-y-2">
                   <Label>Confirmar contraseña *</Label>
-                  <Input
-                    type="password"
-                    value={passwordData.confirmPassword}
-                    onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
-                    className={errors.confirmPassword ? 'border-destructive' : ''}
-                    placeholder="Confirma la contraseña"
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={passwordData.confirmPassword}
+                      onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
+                      className={`pr-10 ${errors.confirmPassword ? 'border-destructive' : ''}`}
+                      placeholder="Confirma la contraseña"
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                   {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
                 </div>
               </div>
@@ -328,26 +348,44 @@ export const UserModal = ({ user, isOpen, onClose, onSave, mode = 'edit', existi
                   {/* New Password */}
                   <div className="space-y-2">
                     <Label>Nueva contraseña</Label>
-                    <Input
-                      type="password"
-                      value={passwordData.password}
-                      onChange={(e) => handlePasswordChange('password', e.target.value)}
-                      className={errors.password ? 'border-destructive' : ''}
-                      placeholder="Ingresa la nueva contraseña"
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        value={passwordData.password}
+                        onChange={(e) => handlePasswordChange('password', e.target.value)}
+                        className={`pr-10 ${errors.password ? 'border-destructive' : ''}`}
+                        placeholder="Ingresa la nueva contraseña"
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                     {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                   </div>
 
                   {/* Confirm Password */}
                   <div className="space-y-2">
                     <Label>Confirmar contraseña</Label>
-                    <Input
-                      type="password"
-                      value={passwordData.confirmPassword}
-                      onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
-                      className={errors.confirmPassword ? 'border-destructive' : ''}
-                      placeholder="Confirma la nueva contraseña"
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={passwordData.confirmPassword}
+                        onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
+                        className={`pr-10 ${errors.confirmPassword ? 'border-destructive' : ''}`}
+                        placeholder="Confirma la nueva contraseña"
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                     {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
                   </div>
                 </div>
