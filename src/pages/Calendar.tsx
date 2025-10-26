@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addDays, startOfWeek, endOfWeek } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addDays, startOfWeek, endOfWeek, parseISO } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
@@ -126,7 +126,7 @@ const Calendar = () => {
 
   const getEventsForDate = (date: Date): CalendarEvent[] => {
     return events.filter(event => 
-      isSameDay(new Date(event.date), date)
+      isSameDay(parseISO(event.date), date)
     );
   };
 
@@ -365,8 +365,8 @@ const Calendar = () => {
 
   const renderAgendaView = () => {
     const sortedEvents = [...events]
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .filter(event => new Date(event.date) >= currentDate);
+      .sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime())
+      .filter(event => parseISO(event.date) >= currentDate);
 
     return (
       <div className="space-y-4">
@@ -401,7 +401,7 @@ const Calendar = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-medium">{format(new Date(event.date), 'EEEE, MMMM d, yyyy')} - {event.time}</h4>
+                      <h4 className="font-medium">{format(parseISO(event.date), 'EEEE, MMMM d, yyyy')} - {event.time}</h4>
                     </div>
                     <Badge variant="outline">Ver detalles</Badge>
                   </div>
