@@ -152,7 +152,7 @@ const Events = () => {
           const emails = row.getValue('notificationEmails') as string[];
           return (
             <div className="max-w-[150px] overflow-x-auto">
-              <div className="flex gap-1 min-w-max">
+              <div className="flex gap-2 min-w-max">
                 {emails.map((email, index) => (
                   <Badge key={index} variant="outline" className="text-xs whitespace-nowrap">
                     {email}
