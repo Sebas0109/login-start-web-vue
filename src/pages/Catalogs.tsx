@@ -56,21 +56,21 @@ const Catalogs = () => {
     loadCatalogData();
   }, [activeTab, pagination.page, pagination.size]);
 
-  const loadCatalogData = async () => {
+  const loadCatalogData = async (tab: CatalogTab = activeTab) => {
     setIsLoading(true);
     try {
-      const response = await catalogsService.getCatalogTable(activeTab as CatalogType, {
+      const response = await catalogsService.getCatalogTable(tab as CatalogType, {
         page: pagination.page,
         size: pagination.size,
         sortBy: 'id',
         order: 'ASC',
       });
 
-      if (activeTab === 'eventGroup') {
+      if (tab === 'eventGroup') {
         setEventGroups(response.content as EventGroup[]);
-      } else if (activeTab === 'guestType') {
+      } else if (tab === 'guestType') {
         setGuestTypes(response.content as GuestType[]);
-      } else if (activeTab === 'addon') {
+      } else if (tab === 'addon') {
         setAddons(response.content as Addon[]);
       }
 
@@ -350,7 +350,7 @@ const Catalogs = () => {
                           title: "Éxito",
                           description: response,
                         });
-                        loadCatalogData();
+                        loadCatalogData('addon');
                       } catch (error) {
                         toast({
                           title: "Error",
