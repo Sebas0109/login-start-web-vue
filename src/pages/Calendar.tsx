@@ -96,8 +96,8 @@ const Calendar = () => {
       start = startOfWeek(monthStart);
       end = endOfWeek(monthEnd);
     } else { // agenda
-      start = new Date();
-      end = addDays(new Date(), 90); // Load next 90 days
+      start = currentDate;
+      end = addDays(currentDate, 90); // Load next 90 days from current date
     }
 
     return {
@@ -179,7 +179,7 @@ const Calendar = () => {
       });
     } else if (view === 'week') {
       setCurrentDate(prev => addDays(prev, direction === 'next' ? 7 : -7));
-    } else if (view === 'today') {
+    } else if (view === 'today' || view === 'agenda') {
       setCurrentDate(prev => addDays(prev, direction === 'next' ? 1 : -1));
     }
   };
@@ -366,11 +366,26 @@ const Calendar = () => {
   const renderAgendaView = () => {
     const sortedEvents = [...events]
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .filter(event => new Date(event.date) >= new Date());
+      .filter(event => new Date(event.date) >= currentDate);
 
     return (
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Próximos Eventos</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">
+            Próximos Eventos desde {format(currentDate, 'MMMM d, yyyy')}
+          </h3>
+          <div className="flex items-center space-x-2">
+            <Button variant="outline" size="sm" onClick={() => navigateDate('prev')}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>
+              Today
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigateDate('next')}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
         <div className="space-y-2">
           {loading ? (
             <p className="text-muted-foreground text-center py-8">Cargando eventos...</p>
