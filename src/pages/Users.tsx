@@ -177,7 +177,7 @@ const Users = () => {
     },
     {
       accessorKey: "person.stateCode",
-      header: "Código de Estado",
+      header: "Código de País",
       cell: ({ row }) => <div className="font-mono">{row.original.person.stateCode}</div>,
     },
     {

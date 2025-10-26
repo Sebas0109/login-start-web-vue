@@ -479,14 +479,18 @@ export const mockAddons: Addon[] = [
 ];
 
 export const mockStateCodes = [
-  { id: "55", name: "55 - Mexico City" },
-  { id: "33", name: "33 - Guadalajara" },
-  { id: "81", name: "81 - Monterrey" },
-  { id: "444", name: "444 - San Luis Potosí" },
-  { id: "477", name: "477 - León" },
-  { id: "222", name: "222 - Puebla" },
-  { id: "998", name: "998 - Cancún" },
-  { id: "664", name: "664 - Tijuana" },
+  { id: "+52", name: "+52 - México" },
+  { id: "+1", name: "+1 - Estados Unidos/Canadá" },
+  { id: "+34", name: "+34 - España" },
+  { id: "+44", name: "+44 - Reino Unido" },
+  { id: "+49", name: "+49 - Alemania" },
+  { id: "+33", name: "+33 - Francia" },
+  { id: "+39", name: "+39 - Italia" },
+  { id: "+54", name: "+54 - Argentina" },
+  { id: "+55", name: "+55 - Brasil" },
+  { id: "+56", name: "+56 - Chile" },
+  { id: "+57", name: "+57 - Colombia" },
+  { id: "+51", name: "+51 - Perú" },
 ];
 
 export const mockUsers: User[] = [

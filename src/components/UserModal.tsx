@@ -80,7 +80,7 @@ export const UserModal = ({ user, isOpen, onClose, onSave, mode = 'edit', existi
     if (!formData.paternalSurname.trim()) newErrors.paternalSurname = 'El apellido paterno es requerido';
     if (!formData.email.trim()) newErrors.email = 'El correo electrónico es requerido';
     if (!formData.profile) newErrors.profile = 'El perfil es requerido';
-    if (!formData.stateCode) newErrors.stateCode = 'El código de área (LADA) es requerido';
+    if (!formData.stateCode) newErrors.stateCode = 'El código de país es requerido';
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (formData.email.trim() && !emailRegex.test(formData.email)) {
@@ -259,10 +259,10 @@ export const UserModal = ({ user, isOpen, onClose, onSave, mode = 'edit', existi
 
             {/* State Code */}
             <div className="space-y-2">
-              <Label>Código de área (LADA) *</Label>
+              <Label>Codigo de Pais *</Label>
               <Select value={formData.stateCode} onValueChange={(value) => handleInputChange('stateCode', value)}>
                 <SelectTrigger className={errors.stateCode ? 'border-destructive' : ''}>
-                  <SelectValue placeholder="Selecciona el código de área" />
+                  <SelectValue placeholder="Selecciona el código de país" />
                 </SelectTrigger>
                 <SelectContent>
                   {mockStateCodes.map((stateCode) => (
