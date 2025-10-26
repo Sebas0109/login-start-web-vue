@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { X, Eye, Edit, Trash2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -112,7 +112,7 @@ const EventModal: React.FC<EventModalProps> = ({ event, isOpen, onClose, onRefre
             <div>
               <h3 className="text-lg font-medium text-foreground mb-2">{event.name}</h3>
               <p className="text-sm text-muted-foreground">
-                {format(new Date(event.date), 'EEEE, MMMM d, yyyy')} at {event.time}
+                {format(parseISO(event.date), 'EEEE, MMMM d, yyyy')} at {event.time}
               </p>
             </div>
 
