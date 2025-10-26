@@ -149,7 +149,10 @@ const Events = () => {
         header: 'Correos',
         size: 150,
         cell: ({ row }) => {
-          const emails = row.getValue('notificationEmails') as string[];
+          const emailsData = row.getValue('notificationEmails') as string[] | string;
+          const emails = Array.isArray(emailsData) 
+            ? emailsData.flatMap(e => e.split(' ').filter(Boolean))
+            : emailsData.split(' ').filter(Boolean);
           return (
             <div className="max-w-[150px] overflow-x-auto">
               <div className="flex gap-2 min-w-max">
