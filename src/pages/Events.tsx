@@ -121,8 +121,10 @@ const Events = () => {
       {
         accessorKey: 'date',
         header: 'Fecha',
+        size: 120,
+        minSize: 120,
         cell: ({ row }) => (
-          <span className="font-medium">{row.getValue('date')}</span>
+          <span className="font-medium whitespace-nowrap">{row.getValue('date')}</span>
         ),
       },
       {
