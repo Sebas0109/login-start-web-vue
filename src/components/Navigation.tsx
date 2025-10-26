@@ -124,7 +124,7 @@ const Navigation = ({}: NavigationProps) => {
           {/* Right: Notifications and User Profile */}
           <div className="flex items-center space-x-4">
             {/* Notification Bell */}
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative hidden" ref={dropdownRef}>
               <Button
                 variant="ghost"
                 size="sm"
