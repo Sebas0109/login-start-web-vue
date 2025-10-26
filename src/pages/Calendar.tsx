@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addDays, startOfWeek, endOfWeek, parseISO } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
@@ -191,7 +192,7 @@ const Calendar = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">
-            {format(currentDate, 'EEEE, MMMM d, yyyy')}
+            {format(currentDate, 'EEEE, d MMMM yyyy', { locale: es })}
           </h3>
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="sm" onClick={() => navigateDate('prev')}>
@@ -241,7 +242,7 @@ const Calendar = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">
-            {format(startWeek, 'MMM d')} - {format(endWeek, 'MMM d, yyyy')}
+            {format(startWeek, 'd MMM', { locale: es })} - {format(endWeek, 'd MMM yyyy', { locale: es })}
           </h3>
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="sm" onClick={() => navigateDate('prev')}>
@@ -263,7 +264,7 @@ const Calendar = () => {
               <Card key={day.toISOString()} className="min-h-[120px] bg-gradient-card backdrop-blur-lg border-border/30">
                 <CardContent className="p-2">
                   <div className={`text-sm font-medium mb-2 ${isToday(day) ? 'text-primary' : ''}`}>
-                    {format(day, 'EEE d')}
+                    {format(day, 'EEE d', { locale: es })}
                   </div>
                   <div className="space-y-1">
                     {dayEvents.map(event => (
@@ -300,7 +301,7 @@ const Calendar = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">
-            {format(currentDate, 'MMMM yyyy')}
+            {format(currentDate, 'MMMM yyyy', { locale: es })}
           </h3>
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="sm" onClick={() => navigateDate('prev')}>
@@ -372,7 +373,7 @@ const Calendar = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">
-            Próximos Eventos desde {format(currentDate, 'MMMM d, yyyy')}
+            Próximos Eventos desde {format(currentDate, 'd MMMM yyyy', { locale: es })}
           </h3>
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="sm" onClick={() => navigateDate('prev')}>
@@ -401,7 +402,7 @@ const Calendar = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-medium">{format(parseISO(event.date), 'EEEE, MMMM d, yyyy')} - {event.time}</h4>
+                      <h4 className="font-medium">{format(parseISO(event.date), 'EEEE, d MMMM yyyy', { locale: es })} - {event.time}</h4>
                     </div>
                     <Badge variant="outline">Ver detalles</Badge>
                   </div>
